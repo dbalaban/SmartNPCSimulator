@@ -64,10 +64,10 @@ struct ResourceManager {
 class Tile : public Element<Tile> {
   friend class Element<Tile>;
 
-  static const size_t ElementID = 0;
+  static const size_t ElementID = 1;
 public:
   Tile(ResourceManager resources)
-    : instanceID(InstanceCount++), resources(resources) {}
+    : Element<Tile>(), resources(resources) {}
   ~Tile() = default;
 
   void addAdjacentTile(Tile* tile) const {
@@ -84,11 +84,8 @@ public:
 
   void update(double elapsedTime) override;
 
-  const size_t getInstanceID() const;
-
 private:
   mutable std::vector<Tile*> adjacentTiles;
-  const size_t instanceID;
   ResourceManager resources;
 };
 

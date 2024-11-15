@@ -3,7 +3,7 @@
 GridWorld::GridWorld(size_t width, size_t height,
                      std::vector<ResourceManager> tile_proptypes,
                      std::vector<double> weights, size_t randomSeed)
-    : width(width), height(height), tile_prototypes(tile_proptypes), weights(weights), randomSeed(randomSeed) {
+    : Element<GridWorld>(), width(width), height(height), tile_prototypes(tile_proptypes), weights(weights), randomSeed(randomSeed) {
   tileCount = 0;
   tiles.resize(width);
   for (size_t i = 0; i < width; i++) {

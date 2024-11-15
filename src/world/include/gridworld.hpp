@@ -5,20 +5,21 @@
 #include <unordered_map>
 #include <random>
 
+#include "element.hpp"
 #include "tile.hpp"
 
 typedef std::pair<size_t, size_t> Coord2D;
 
-class GridWorld {
+class GridWorld : public Element<GridWorld> {
 public:
+  static const size_t ElementID = 0;
+
   GridWorld(size_t width, size_t height,
             std::vector<ResourceManager> tile_prototypes,
             std::vector<double> weights,
             size_t randomSeed = 0);
 
   ~GridWorld();
-
-  void update(double elapsedTime);
 
   Tile* getTile(Coord2D coord);
 
@@ -35,6 +36,8 @@ public:
   const size_t getTileCount() const;
 
   void GenerateTileMap();
+
+  void update(double elapsedTime) override;
 
 private:
   size_t width;
