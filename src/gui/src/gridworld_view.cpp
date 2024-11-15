@@ -15,7 +15,7 @@ void GridWorldView::draw(sf::RenderWindow& window) {
       tile.setPosition(i * tileWidth, j * tileHeight);
 
       // Get the resources of the tile
-      const ResourceManager& resourceInfo = model.getTile({i, j})->getResources();
+      const ResourceManager& resourceInfo = model.getTile({i, j})->getResourceManager();
       float ratio = static_cast<float>(resourceInfo.resources.kcal / resourceInfo.maxResources.kcal);
 
       // float ratio = static_cast<float>(i + j) / static_cast<float>((width - 1) + (height - 1));

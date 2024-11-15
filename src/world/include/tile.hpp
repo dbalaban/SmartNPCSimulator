@@ -70,7 +70,7 @@ public:
     : Element<Tile>(), resources(resources) {}
   ~Tile() = default;
 
-  void addAdjacentTile(Tile* tile) const {
+  void addAdjacentTile(Tile* tile) {
     adjacentTiles.push_back(tile);
   }
 
@@ -78,14 +78,18 @@ public:
     return adjacentTiles;
   }
 
-  const ResourceManager& getResources() const {
+  ResourceManager& getResourceManager() {
     return resources;
+  }
+
+  Resources& getResources() {
+    return resources.resources;
   }
 
   void update(double elapsedTime) override;
 
 private:
-  mutable std::vector<Tile*> adjacentTiles;
+  std::vector<Tile*> adjacentTiles;
   ResourceManager resources;
 };
 
