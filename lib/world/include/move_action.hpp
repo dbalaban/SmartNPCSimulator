@@ -20,7 +20,8 @@ public:
       // move the character to the tile
       character->setPosition(tile);
       if (character->getPosition() != tile) {
-        character->getTraits().kcal_on_hand -= 2*character->getTraits().kcal_burn_rate;
+        double burnRate = character->getTraits().kcal_burn_rate;
+        character->burnKcal(2*burnRate);
       }
     }
   }

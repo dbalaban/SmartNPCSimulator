@@ -156,3 +156,23 @@ void GridWorld::AddCharacter(CharacterPtr character, Coord2D coord) {
   tileCharacterMap[tileID].insert(characterID);
   characterTileMap[characterID] = tileID;
 }
+
+const double** GridWorld::getTileFeatures() const {
+  const double** features = new const double*[tileCount];
+  for (size_t i = 0; i < tileCount; i++) {
+    Coord2D coord = tileCoordMap.at(i);
+    Tile* tile = tiles[coord.first][coord.second];
+    features[i] = tile->getFeatures();
+  }
+  return features;
+}
+
+const double** GridWorld::getCharacterFeatures() const {
+  const double** features = new const double*[characters.size()];
+  size_t i = 0;
+  for (auto& character : characters) {
+    features[i] = character.second->getFeatures();
+    i++;
+  }
+  return features;
+}

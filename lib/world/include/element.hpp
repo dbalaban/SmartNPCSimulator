@@ -15,6 +15,10 @@ public:
   virtual const size_t getInstanceID() const = 0;
 
   virtual const size_t getInstanceCount() const = 0;
+
+  virtual const size_t getFeatureSize() const = 0;
+
+  virtual const double* getFeatures() const = 0;
 };
 
 template <class Derived>
@@ -23,6 +27,8 @@ public:
   virtual ~Element() = default;
 
   virtual void update(double elapsedTime) = 0;
+
+  virtual const double* getFeatures() const = 0;
 
   // Each derived class must have a const static ID of type size_t
   const size_t getElementID() const override {
@@ -35,6 +41,10 @@ public:
 
   const size_t getInstanceCount() const override {
     return InstanceCount;
+  }
+
+  const size_t getFeatureSize() const override {
+    return Derived::FeatureSize;
   }
 
 protected:

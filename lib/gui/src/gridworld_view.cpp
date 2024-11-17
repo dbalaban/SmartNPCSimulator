@@ -84,19 +84,19 @@ void GridWorldView::draw(sf::RenderWindow& window) {
 
         sf::RectangleShape healthBarOutline(sf::Vector2f(dot_size+2, 6));
         healthBarOutline.setPosition(coord.first * tileWidth + offsetX + col * dot_size - 1, 
-                                     coord.second * tileHeight + offsetY + row * dot_size - characterSize - 8);
+                                     coord.second * tileHeight + offsetY + row * dot_size - characterSize - 6);
         healthBarOutline.setFillColor(sf::Color::Black);
         window.draw(healthBarOutline);
 
         sf::RectangleShape healthBarGreen(sf::Vector2f(dot_size * healthRatio, 4));
         healthBarGreen.setPosition(coord.first * tileWidth + offsetX + col * dot_size, 
-                                   coord.second * tileHeight + offsetY + row * dot_size - characterSize - 7);
+                                   coord.second * tileHeight + offsetY + row * dot_size - characterSize - 5);
         healthBarGreen.setFillColor(sf::Color::Green);
         window.draw(healthBarGreen);
 
         sf::RectangleShape healthBarRed(sf::Vector2f(dot_size * (1 - healthRatio), 4));
         healthBarRed.setPosition(coord.first * tileWidth + offsetX + col * dot_size + dot_size * healthRatio, 
-                                 coord.second * tileHeight + offsetY + row * dot_size - characterSize - 7);
+                                 coord.second * tileHeight + offsetY + row * dot_size - characterSize - 5);
         healthBarRed.setFillColor(sf::Color::Red);
         window.draw(healthBarRed);
       }

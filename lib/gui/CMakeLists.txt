@@ -1,8 +1,6 @@
 # Set the project name for the library
 project(GuiLibrary)
 
-message(INFO "cmake source dir: ${CMAKE_SOURCE_DIR}")
-
 # Add the include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/src/world/include) # Include the WorldLibrary headers

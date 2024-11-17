@@ -8,16 +8,16 @@
 #include "abstract_action.hpp"
 #include "tile.hpp"
 
-class AbstractActor : public Element<AbstractActor> {
+class AbstractActor {
 public:
-  static const size_t ElementID = 3;
   virtual ActionDesc selectAction(const std::vector<ActionDesc>& actions) = 0;
+  virtual void update(double reward) = 0;
 };
+
+typedef std::unique_ptr<AbstractActor> ActorPtr;
 
 class RandomActor : public AbstractActor {
 public:
-  static const size_t ElementID = 4;
-
   RandomActor(size_t randomSeed) : randomEngine(randomSeed) {}
 
   ~RandomActor() {}
@@ -27,7 +27,7 @@ public:
     return actions[distribution(randomEngine)];
   }
 
-  void update(double elapsedTime) override {}
+  void update(double reward) {}
 
 protected:
   std::default_random_engine randomEngine;

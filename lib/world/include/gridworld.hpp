@@ -11,11 +11,11 @@
 #include "character.hpp"
 
 typedef std::pair<size_t, size_t> Coord2D;
-typedef std::unique_ptr<Character> CharacterPtr;
 
 class GridWorld : public Element<GridWorld> {
 public:
   static const size_t ElementID = 0;
+  static const size_t FeatureSize = 5;
 
   GridWorld(size_t width, size_t height,
             std::vector<ResourceManager> tile_prototypes,
@@ -23,6 +23,20 @@ public:
             size_t randomSeed = 0);
 
   ~GridWorld();
+
+  const double* getFeatures() const override {
+    static double features[FeatureSize];
+    features[0] = ElementID;
+    features[1] = getInstanceID();
+    features[2] = width;
+    features[3] = height;
+    features[4] = characters.size();
+    return features;
+  }
+
+  const double** getTileFeatures() const;
+
+  const double** getCharacterFeatures() const;
 
   Tile* getTile(Coord2D coord);
 

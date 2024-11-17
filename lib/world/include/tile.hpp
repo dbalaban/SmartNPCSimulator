@@ -63,12 +63,27 @@ struct ResourceManager {
 
 class Tile : public Element<Tile> {
   friend class Element<Tile>;
-
-  static const size_t ElementID = 1;
 public:
+  static const size_t ElementID = 1;
+  static const size_t FeatureSize = 9;
+
   Tile(ResourceManager resources)
     : Element<Tile>(), resources(resources) {}
   ~Tile() = default;
+
+  const double* getFeatures() const override {
+    static double features[FeatureSize];
+    features[0] = ElementID;
+    features[1] = getInstanceID();
+    features[2] = adjacentTiles[0] ? adjacentTiles[0]->getInstanceID() : -1;
+    features[3] = adjacentTiles[1] ? adjacentTiles[1]->getInstanceID() : -1;
+    features[4] = adjacentTiles[2] ? adjacentTiles[2]->getInstanceID() : -1;
+    features[5] = adjacentTiles[3] ? adjacentTiles[3]->getInstanceID() : -1;
+    features[6] = resources.resources.kcal;
+    features[7] = resources.resourcesPerHour.kcal;
+    features[8] = resources.maxResources.kcal;
+    return features;
+  }
 
   void addAdjacentTile(Tile* tile) {
     adjacentTiles.push_back(tile);

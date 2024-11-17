@@ -17,7 +17,7 @@ public:
 
     if (character && tile) {
       // harvest the tile
-      character->getTraits().kcal_on_hand += tile->getResources().kcal;
+      character->addResources(tile->getResources());
       tile->getResources().kcal = 0;
     }
   }

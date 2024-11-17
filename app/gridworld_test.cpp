@@ -23,7 +23,7 @@ int main() {
 
     // Add a character with random action policy
     auto actor = std::make_unique<RandomActor>(randomSeed);
-    CharacterTraits traits(1000, 10, 1000, 1600, 1600/24);
+    CharacterTraits traits(48000, 10, 48000, 1600, 1600/24);
     auto character = std::make_unique<Character>(std::move(actor), traits);
     Coord2D coord = std::make_pair(5, 5);
     gridWorld.AddCharacter(std::move(character), coord);
