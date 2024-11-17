@@ -1,9 +1,9 @@
 # Set the project name for the executable
 project(GridWorldApp)
 
-# Add the include directory from the src/world and src/gui projects
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src/world/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../src/gui/include)
+# Add the include directory from the lib/world and lib/gui projects
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib/world/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib/gui/include)
 
 # Add the source files for the executable
 file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")

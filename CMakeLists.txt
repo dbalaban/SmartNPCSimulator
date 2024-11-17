@@ -21,5 +21,5 @@ set(Torch_DIR "${CMAKE_SOURCE_DIR}/third_party/libtorch/share/cmake/Torch")
 find_package(Torch REQUIRED)
 
 # Add subdirectories
-add_subdirectory(src)
+add_subdirectory(lib)
 add_subdirectory(app)

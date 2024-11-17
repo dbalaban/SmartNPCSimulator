@@ -1,7 +1,7 @@
 project(RLLibrary)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_SOURCE_DIR}/src/world/include)
+include_directories(${CMAKE_SOURCE_DIR}/lib/world/include)
 
 file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 find_package(Torch REQUIRED)

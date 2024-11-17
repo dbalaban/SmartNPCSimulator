@@ -3,7 +3,7 @@ project(GuiLibrary)
 
 # Add the include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_SOURCE_DIR}/src/world/include) # Include the WorldLibrary headers
+include_directories(${CMAKE_SOURCE_DIR}/lib/world/include) # Include the WorldLibrary headers
 
 # Add the source files
 file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
