@@ -9,5 +9,9 @@ void GridWorldController::handleInput(sf::RenderWindow& window) {
 }
 
 void GridWorldController::update() {
-    model.update(frameTime);
+    float frameDuration = 1.0f / frameRate;
+    if (clock.getElapsedTime().asSeconds() >= frameDuration) {
+        model.update(frameDuration);
+        clock.restart();
+    }
 }

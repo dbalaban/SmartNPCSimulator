@@ -11,6 +11,9 @@ public:
 
 private:
     GridWorld& model;
+    // size of character dots
+    const float characterSize = 10.0f;
+    const float characterSpacing = 2.0f;
 };
 
 #endif // GRIDWORLD_VIEW_HPP

@@ -3,12 +3,15 @@
 
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <random>
 
 #include "element.hpp"
 #include "tile.hpp"
+#include "character.hpp"
 
 typedef std::pair<size_t, size_t> Coord2D;
+typedef std::unique_ptr<Character> CharacterPtr;
 
 class GridWorld : public Element<GridWorld> {
 public:
@@ -37,13 +40,35 @@ public:
 
   void GenerateTileMap();
 
+  void AddCharacter(CharacterPtr Character, Coord2D coord);
+
   void update(double elapsedTime) override;
+
+  const std::unordered_map<size_t, Coord2D>& getTileCoordMap() const {
+    return tileCoordMap;
+  }
+
+  const std::unordered_map<size_t, std::unordered_set<size_t>>& getTileCharacterMap() const {
+    return tileCharacterMap;
+  }
+
+  const CharacterPtr& getCharacter(size_t characterID) const {
+    return characters.at(characterID);
+  }
 
 private:
   size_t width;
   size_t height;
+  // grid of tiles
   std::vector<std::vector<Tile*>> tiles;
-  std::unordered_map<size_t, Coord2D> tileMap;
+  // character ID to character pointer
+  std::unordered_map<size_t, CharacterPtr> characters;
+  // tile ID to tile coordinate
+  std::unordered_map<size_t, Coord2D> tileCoordMap;
+  // character ID to tile ID
+  std::unordered_map<size_t, size_t> characterTileMap;
+  // tile ID to set of character IDs inhabiting that tile
+  std::unordered_map<size_t, std::unordered_set<size_t>> tileCharacterMap;
 
   size_t tileCount;
   std::vector<ResourceManager> tile_prototypes;

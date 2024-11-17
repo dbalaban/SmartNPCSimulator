@@ -1,9 +1,15 @@
 #include "gridworld.hpp"
+#include "character.hpp" // Include the header file for the Character class
 
 GridWorld::GridWorld(size_t width, size_t height,
                      std::vector<ResourceManager> tile_proptypes,
                      std::vector<double> weights, size_t randomSeed)
-    : Element<GridWorld>(), width(width), height(height), tile_prototypes(tile_proptypes), weights(weights), randomSeed(randomSeed) {
+    : Element<GridWorld>(), 
+    width(width), 
+    height(height), 
+    tile_prototypes(tile_proptypes), 
+    weights(weights), 
+    randomSeed(randomSeed) {
   tileCount = 0;
   tiles.resize(width);
   for (size_t i = 0; i < width; i++) {
@@ -20,6 +26,46 @@ GridWorld::~GridWorld() {
 }
 
 void GridWorld::update(double elapsedTime) {
+  std::vector<ActionDesc> selectedActions;
+  for (auto& character : characters) {
+    std::vector<ActionDesc> actions;
+    character.second->getAvailableActions(actions);
+    ActionDesc action = character.second->getActor()->selectAction(actions);
+    selectedActions.push_back(action);
+  }
+
+  //TODO: check for conflicts and resolve
+
+  // execute actions
+  for (ActionDesc action : selectedActions) {
+    AbstractAction::execute(action.ActionID, action.subject, action.object);
+  }
+
+  // update position of characters
+  for (auto it = characters.begin(); it != characters.end(); ) {
+    size_t characterID = it->first;
+    size_t knownTileID = characterTileMap[characterID];
+    size_t newTileID = it->second->getPosition()->getInstanceID();
+
+    if (knownTileID != newTileID) {
+      tileCharacterMap[knownTileID].erase(characterID);
+      tileCharacterMap[newTileID].insert(characterID);
+      characterTileMap[characterID] = newTileID;
+    }
+
+    it->second->update(elapsedTime);
+
+    // if character's health is 0, remove character
+    if (it->second->getTraits().health <= 0) {
+      Tile* tile = it->second->getPosition();
+      tileCharacterMap[tile->getInstanceID()].erase(characterID);
+      characterTileMap.erase(characterID);
+      it = characters.erase(it); // Erase and update the iterator
+    } else {
+      ++it; // Only increment the iterator if no deletion occurred
+    }
+  }
+
   for (size_t i = 0; i < width; i++) {
     for (size_t j = 0; j < height; j++) {
       tiles[i][j]->update(elapsedTime);
@@ -50,7 +96,7 @@ const size_t GridWorld::getTileID(Coord2D coord) const {
 }
 
 const Coord2D GridWorld::getTileCoord(size_t tileID) const {
-  return tileMap.at(tileID);
+  return tileCoordMap.at(tileID);
 }
 
 const size_t GridWorld::getTileCount() const {
@@ -67,7 +113,7 @@ void GridWorld::GenerateTileMap() {
       ResourceManager resources = tile_prototypes[index];
       Tile* tile = new Tile(resources);
       Coord2D coord = std::make_pair(i, j);
-      tileMap[tile->getInstanceID()] = coord;
+      tileCoordMap[tile->getInstanceID()] = coord;
       tiles[i][j] = tile;
       tileCount++;
     }
@@ -99,4 +145,14 @@ void GridWorld::GenerateTileMap() {
       }
     }
   }
+}
+
+void GridWorld::AddCharacter(CharacterPtr character, Coord2D coord) {
+  Tile* tile = getTile(coord);
+  character->setPosition(tile);
+  size_t characterID = character->getInstanceID();
+  characters[characterID] = std::move(character);
+  size_t tileID = tile->getInstanceID();
+  tileCharacterMap[tileID].insert(characterID);
+  characterTileMap[characterID] = tileID;
 }

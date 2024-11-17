@@ -49,7 +49,7 @@ size_t Element<Derived>::InstanceCount = 0;
 
 // Static assertion to enforce inheritance
 template <class Derived>
-struct CheckInheritance {
+struct CheckElementInheritance {
   static_assert(std::is_base_of<Element<Derived>, Derived>::value, "Derived must be derived from Element<Derived>");
 };
 

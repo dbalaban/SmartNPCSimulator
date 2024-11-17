@@ -17,6 +17,8 @@ private:
     GridWorldView& view;
     // hours per frame
     const double frameTime;
+    const double frameRate = 1.0;
+    sf::Clock clock;
 };
 
 #endif // GRIDWORLD_CONTROLLER_HPP
