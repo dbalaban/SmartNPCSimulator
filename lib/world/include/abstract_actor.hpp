@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <random>
+#include <memory>
 
 #include "element.hpp"
 #include "abstract_action.hpp"

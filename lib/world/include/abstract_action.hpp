@@ -15,6 +15,16 @@ struct ActionDesc {
   size_t ObjectInstanceID;
   ElementBase* subject;
   ElementBase* object;
+
+  double* getFeatures() const {
+    static double features[actionSize];
+    features[0] = SubjectClassID;
+    features[1] = SubjectInstanceID;
+    features[2] = ActionID;
+    features[3] = ObjectClassID;
+    features[4] = ObjectInstanceID;
+    return features;
+  }
 };
 
 class AbstractAction {

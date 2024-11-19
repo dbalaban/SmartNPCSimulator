@@ -4,6 +4,7 @@ project(GridWorldApp)
 # Add the include directory from the lib/world and lib/gui projects
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib/world/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib/gui/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../lib/rl/include)
 
 # Add the source files for the executable
 file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
@@ -12,4 +13,4 @@ file(GLOB SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # Link the GuiLibrary and SFML libraries to the executable
-target_link_libraries(${PROJECT_NAME} PRIVATE GuiLibrary sfml-graphics sfml-window sfml-system)
+target_link_libraries(${PROJECT_NAME} PRIVATE GuiLibrary RLLibrary sfml-graphics sfml-window sfml-system)

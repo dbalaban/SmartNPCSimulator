@@ -24,8 +24,8 @@ public:
 
   ~GridWorld();
 
-  double* getFeatures() const override {
-    static double features[FeatureSize];
+  std::unique_ptr<double[]> getFeatures() const override {
+    std::unique_ptr<double[]> features(new double[FeatureSize]);
     features[0] = ElementID;
     features[1] = getInstanceID();
     features[2] = width;
@@ -34,9 +34,9 @@ public:
     return features;
   }
 
-  double* getTileFeatures() const;
+  std::unique_ptr<double[]> getTileFeatures() const;
 
-  double* getCharacterFeatures() const;
+  std::unique_ptr<double[]> getCharacterFeatures() const;
 
   Tile* getTile(Coord2D coord);
 

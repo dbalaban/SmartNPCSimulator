@@ -71,8 +71,8 @@ public:
     : Element<Tile>(), resources(resources) {}
   ~Tile() = default;
 
-  double* getFeatures() const override {
-    static double features[FeatureSize];
+  std::unique_ptr<double[]> getFeatures() const override {
+    std::unique_ptr<double[]> features(new double[FeatureSize]);
     features[0] = ElementID;
     features[1] = getInstanceID();
     features[2] = adjacentTiles[0] ? adjacentTiles[0]->getInstanceID() : -1;

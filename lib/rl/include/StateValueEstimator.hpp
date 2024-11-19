@@ -27,9 +27,7 @@ private:
   torch::nn::Linear tile_state_projection;
   torch::nn::Linear char_state_projection;
 
-  torch::nn::Linear query_grid_weights;
-  torch::nn::Linear query_tile_weights;
-  torch::nn::Linear query_char_weights;
+  torch::nn::Linear query;
 
   torch::nn::Linear key_grid_weights;
   torch::nn::Linear key_tile_weights;
@@ -44,7 +42,8 @@ private:
   torch::nn::Linear char_weight;
 
   torch::nn::Linear output_projection;
-  torch::nn::Linear output_layer;
+  torch::nn::Linear output_layer1;
+  torch::nn::Linear output_layer2;
 
 };
 

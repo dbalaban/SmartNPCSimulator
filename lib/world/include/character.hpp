@@ -53,8 +53,8 @@ public:
     reward = 0;
   }
 
-  double* getFeatures() const override {
-    static double features[FeatureSize];
+  std::unique_ptr<double[]> getFeatures() const override {
+    std::unique_ptr<double[]> features(new double[FeatureSize]);
     features[0] = ElementID;
     features[1] = getInstanceID();
     features[2] = traits.health;

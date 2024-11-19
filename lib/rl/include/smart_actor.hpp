@@ -11,8 +11,7 @@
 class SmartActor : public AbstractActor {
 static const size_t ElementID = 5;
 public:
-  SmartActor(Character* character,
-             GridWorld* world,
+  SmartActor(GridWorld* world,
              StateValueEstimator* v,
              FOMAP* fomap,
              size_t randomSeed = 0);
@@ -22,7 +21,6 @@ public:
   ActionDesc selectAction(const std::vector<ActionDesc>& actions) override;
 
 private:
-  Character* character; // Associated Character object
   GridWorld* world; // Global reference object
   StateValueEstimator* v; // State value estimator
   FOMAP* fomap; // Fully Observable Markovian Action Policy
