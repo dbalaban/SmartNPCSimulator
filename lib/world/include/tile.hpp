@@ -71,7 +71,7 @@ public:
     : Element<Tile>(), resources(resources) {}
   ~Tile() = default;
 
-  const double* getFeatures() const override {
+  double* getFeatures() const override {
     static double features[FeatureSize];
     features[0] = ElementID;
     features[1] = getInstanceID();

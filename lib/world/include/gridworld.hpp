@@ -24,7 +24,7 @@ public:
 
   ~GridWorld();
 
-  const double* getFeatures() const override {
+  double* getFeatures() const override {
     static double features[FeatureSize];
     features[0] = ElementID;
     features[1] = getInstanceID();
@@ -34,9 +34,9 @@ public:
     return features;
   }
 
-  const double** getTileFeatures() const;
+  double* getTileFeatures() const;
 
-  const double** getCharacterFeatures() const;
+  double* getCharacterFeatures() const;
 
   Tile* getTile(Coord2D coord);
 
@@ -51,6 +51,10 @@ public:
   const Coord2D getTileCoord(size_t tileID) const;
 
   const size_t getTileCount() const;
+
+  const size_t getCharacterCount() const {
+    return characters.size();
+  }
 
   void GenerateTileMap();
 

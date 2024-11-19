@@ -18,7 +18,7 @@ public:
 
   virtual const size_t getFeatureSize() const = 0;
 
-  virtual const double* getFeatures() const = 0;
+  virtual double* getFeatures() const = 0;
 };
 
 template <class Derived>
@@ -28,7 +28,7 @@ public:
 
   virtual void update(double elapsedTime) = 0;
 
-  virtual const double* getFeatures() const = 0;
+  virtual double* getFeatures() const = 0;
 
   // Each derived class must have a const static ID of type size_t
   const size_t getElementID() const override {

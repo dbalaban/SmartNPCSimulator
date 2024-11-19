@@ -53,7 +53,7 @@ public:
     reward = 0;
   }
 
-  const double* getFeatures() const override {
+  double* getFeatures() const override {
     static double features[FeatureSize];
     features[0] = ElementID;
     features[1] = getInstanceID();

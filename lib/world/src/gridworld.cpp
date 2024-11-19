@@ -157,22 +157,25 @@ void GridWorld::AddCharacter(CharacterPtr character, Coord2D coord) {
   characterTileMap[characterID] = tileID;
 }
 
-const double** GridWorld::getTileFeatures() const {
-  const double** features = new const double*[tileCount];
+double* GridWorld::getTileFeatures() const {
+  size_t tile_feature_size = Tile::FeatureSize;
+  double* features = new double[tileCount * tile_feature_size];
   for (size_t i = 0; i < tileCount; i++) {
     Coord2D coord = tileCoordMap.at(i);
     Tile* tile = tiles[coord.first][coord.second];
-    features[i] = tile->getFeatures();
+    double* tile_features = tile->getFeatures();
+    std::copy(tile_features, tile_features + tile_feature_size, features + i * tile_feature_size);
   }
   return features;
 }
 
-const double** GridWorld::getCharacterFeatures() const {
-  const double** features = new const double*[characters.size()];
-  size_t i = 0;
-  for (auto& character : characters) {
-    features[i] = character.second->getFeatures();
-    i++;
+double* GridWorld::getCharacterFeatures() const {
+  size_t character_feature_size = Character::FeatureSize;
+  double* features = new double[characters.size() * character_feature_size];
+  for (size_t i = 0; i < characters.size(); i++) {
+    Character* character = characters.at(i).get();
+    double* character_features = character->getFeatures();
+    std::copy(character_features, character_features + character_feature_size, features + i * character_feature_size);
   }
   return features;
 }
