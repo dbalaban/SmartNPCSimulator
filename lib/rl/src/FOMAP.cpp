@@ -3,6 +3,7 @@
 #include "tile.hpp"
 #include "character.hpp"
 #include "abstract_action.hpp"
+#include "gridworld.hpp"
 
 FOMAP::FOMAP(const size_t projection_size,
             const size_t output_size) :
@@ -11,7 +12,7 @@ FOMAP::FOMAP(const size_t projection_size,
     grid_state_size(GridWorld::FeatureSize),
     tile_state_size(Tile::FeatureSize),
     character_state_size(Character::FeatureSize),
-    action_size(5),
+    action_size(ActionDesc::actionSize),
     grid_state_projection(torch::nn::Linear(torch::nn::LinearOptions(grid_state_size, projection_size))),
     tile_state_projection(torch::nn::Linear(torch::nn::LinearOptions(tile_state_size, projection_size))),
     character_state_projection(torch::nn::Linear(torch::nn::LinearOptions(character_state_size, projection_size))),
@@ -71,28 +72,26 @@ torch::Tensor FOMAP::forward(torch::Tensor grid_state,
   auto attention_tile = torch::matmul(query, key_tile_state.transpose(0, 1));
   auto attention_char = torch::matmul(query, key_character_state.transpose(0, 1));
 
-  attention_grid = torch::softmax(attention_grid, 1);
-  attention_tile = torch::softmax(attention_tile, 1);
-  attention_char = torch::softmax(attention_char, 1);
+  float d = sqrt(static_cast<float>(projection_size));
+
+  attention_grid = torch::softmax(attention_grid/d, 1);
+  attention_tile = torch::softmax(attention_tile/d, 1);
+  attention_char = torch::softmax(attention_char/d, 1);
 
   attention_grid = torch::matmul(attention_grid, value_grid_state);
   attention_tile = torch::matmul(attention_tile, value_tile_state);
   attention_char = torch::matmul(attention_char, value_character_state);
 
-  // GELU activation function on attention
-  attention_grid = torch::gelu(attention_grid);
-  attention_tile = torch::gelu(attention_tile);
-  attention_char = torch::gelu(attention_char);
+  attention_grid = torch::layer_norm(attention_grid, {static_cast<int64_t>(projection_size)});
+  attention_tile = torch::layer_norm(attention_tile, {static_cast<int64_t>(projection_size)});
+  attention_char = torch::layer_norm(attention_char, {static_cast<int64_t>(projection_size)});
 
   attention_grid = this->grid_weight(attention_grid);
   attention_tile = this->tile_weight(attention_tile);
   attention_char = this->char_weight(attention_char);
 
-  attention_grid = torch::layer_norm(attention_grid, {static_cast<int64_t>(projection_size)});
-  attention_tile = torch::layer_norm(attention_tile, {static_cast<int64_t>(projection_size)});
-  attention_char = torch::layer_norm(attention_char, {static_cast<int64_t>(projection_size)});
-
   auto attention = attention_grid + attention_tile + attention_char;
+  attention = torch::gelu(attention);
 
   auto output = this->output_projection(attention);
   output = torch::gelu(output);

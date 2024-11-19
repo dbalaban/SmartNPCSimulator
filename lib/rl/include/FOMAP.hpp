@@ -1,10 +1,9 @@
 #ifndef FOMAP_HPP
 #define FOMAP_HPP
 
-#include <vector>
-#include <torch/torch.h>
+// Fully Observable Markovian Action Policy (FOMAP)
 
-#include "gridworld.hpp"
+#include <torch/torch.h>
 
 class FOMAP : public torch::nn::Module {
 public:

@@ -7,6 +7,7 @@
 #include <stdexcept>
 
 struct ActionDesc {
+  const static size_t actionSize = 5;
   size_t SubjectClassID;
   size_t SubjectInstanceID;
   size_t ActionID;
