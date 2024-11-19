@@ -17,7 +17,8 @@ private:
     GridWorldView& view;
     // hours per frame
     const double frameTime;
-    const double frameRate = 1.0;
+    const double frameRate = 10.0;
+    double timeAccumulator = 0.0;
     sf::Clock clock;
 };
 

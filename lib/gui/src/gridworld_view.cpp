@@ -5,6 +5,10 @@
 
 GridWorldView::GridWorldView(GridWorld& model) : model(model) {}
 
+void GridWorldView::setTimeElapsed(float timeElapsed) {
+  this->timeElapsed = timeElapsed;
+}
+
 void GridWorldView::draw(sf::RenderWindow& window) {
   size_t width = model.getWidth();
   size_t height = model.getHeight();
@@ -41,6 +45,13 @@ void GridWorldView::draw(sf::RenderWindow& window) {
     std::cerr << "Error loading font" << std::endl;
     return;
   }
+  sf::Text timeText;
+  timeText.setFont(font);
+  timeText.setString("World Time: " + std::to_string(timeElapsed));
+  timeText.setCharacterSize(24);
+  timeText.setFillColor(sf::Color::White);
+  timeText.setPosition(10, 10);
+  window.draw(timeText);
 
   for (const auto& pair : tileCharacterMap) {
     size_t tileID = pair.first;
