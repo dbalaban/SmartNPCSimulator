@@ -97,5 +97,8 @@ torch::Tensor FOMAP::forward(torch::Tensor grid_state,
   output = torch::gelu(output);
   output = this->output_layer(output);
 
+  // exponential softmax
+  output = torch::softmax(output, 0);
+
   return output;
 }
