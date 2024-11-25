@@ -22,8 +22,9 @@ SmartActor::SmartActor(GridWorld* world,
     optimizer_critic(v->parameters(), torch::optim::RMSpropOptions(learning_rate_critic)) {}
 
 ActionDesc SmartActor::selectAction(const std::vector<ActionDesc>& actions) {
+  std::cout << "Selecting action" << std::endl;
   // Get the current state
-  std::unique_ptr<double[]> grid_state(world->getFeatures());
+  std::unique_ptr<double[]> grid_state = world->getFeatures();
   std::unique_ptr<double[]> tile_state = world->getTileFeatures();
   std::unique_ptr<double[]> character_state = world->getCharacterFeatures();
 
@@ -52,12 +53,15 @@ ActionDesc SmartActor::selectAction(const std::vector<ActionDesc>& actions) {
 
   last_action_prob = action_probs[action_index];
 
+  std::cout << "Selected action: " << action_index << " / " << actions.size() << std::endl;
+
   return actions[action_index];
 }
 
 void SmartActor::update(double reward) {
+  std::cout << "Updating actor" << std::endl;
   // Get the current state
-  std::unique_ptr<double[]> grid_state(world->getFeatures());
+  std::unique_ptr<double[]> grid_state = world->getFeatures();
   std::unique_ptr<double[]> tile_state = world->getTileFeatures();
   std::unique_ptr<double[]> character_state = world->getCharacterFeatures();
 
@@ -72,12 +76,9 @@ void SmartActor::update(double reward) {
     torch::NoGradGuard no_grad;
     current_value = v->forward(grid_tensor, tile_tensor, character_tensor);
   }
-  std::cout << "Current value size: " << current_value.sizes() << std::endl;
   // Calculate the TD error
   auto td_error = reward + discounting_factor * current_value - last_state_value;
   auto v_loss = td_error.pow(2);
-
-  std::cout << "Loss size: " << v_loss.sizes() << std::endl;
 
   // Update the value estimator
   v->zero_grad();
@@ -92,4 +93,5 @@ void SmartActor::update(double reward) {
   optimizer_actor.step();
   decay_factor *= discounting_factor;
   decay_factor = std::max(1e-5, decay_factor);
+  std::cout << "Updated actor" << std::endl;
 }
