@@ -14,9 +14,9 @@ SmartActor::SmartActor(GridWorld* world,
     randomEngine(randomSeed),
     last_action_prob(torch::tensor(0.0)),
     last_state_value(torch::tensor(0.0)),
-    discounting_factor(.999),
-    learning_rate_actor(0.001),
-    learning_rate_critic(0.01),
+    discounting_factor(0.9),
+    learning_rate_actor(10),
+    learning_rate_critic(1),
     decay_factor(1.0),
     optimizer_actor(fomap->parameters(), torch::optim::AdamOptions(learning_rate_actor)),
     optimizer_critic(v->parameters(), torch::optim::RMSpropOptions(learning_rate_critic)) {}
@@ -46,9 +46,13 @@ ActionDesc SmartActor::selectAction(const std::vector<ActionDesc>& actions) {
   // Forward pass through the FOMAP
   auto action_probs = fomap->forward(grid_tensor, tile_tensor, character_tensor, actions_tensor);
 
+  std::cout << "state value: " << last_state_value << std::endl;
+  std::cout << "action probs: " << action_probs.transpose(1,0) << std::endl;
+
   // weighted random selection of index
   std::discrete_distribution<size_t> distribution(action_probs.data_ptr<float>(), action_probs.data_ptr<float>() + action_probs.size(0));
   size_t action_index = distribution(randomEngine);
+  std::cout << "selected action: " << action_index+1 << " / " << actions.size() << std::endl;
 
   last_action_prob = action_probs[action_index];
 
@@ -72,12 +76,12 @@ void SmartActor::update(double reward) {
     torch::NoGradGuard no_grad;
     current_value = v->forward(grid_tensor, tile_tensor, character_tensor);
   }
-  std::cout << "Current value size: " << current_value.sizes() << std::endl;
   // Calculate the TD error
   auto td_error = reward + discounting_factor * current_value - last_state_value;
   auto v_loss = td_error.pow(2);
 
-  std::cout << "Loss size: " << v_loss.sizes() << std::endl;
+  std::cout << "reward: " << reward << std::endl;
+  std::cout << "td error: " << td_error << std::endl;
 
   // Update the value estimator
   v->zero_grad();
