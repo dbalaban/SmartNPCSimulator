@@ -45,13 +45,13 @@ void GridWorldView::draw(sf::RenderWindow& window) {
     std::cerr << "Error loading font" << std::endl;
     return;
   }
-  sf::Text timeText;
-  timeText.setFont(font);
-  timeText.setString("World Time: " + std::to_string(timeElapsed));
-  timeText.setCharacterSize(24);
-  timeText.setFillColor(sf::Color::White);
-  timeText.setPosition(10, 10);
-  window.draw(timeText);
+  // sf::Text timeText;
+  // timeText.setFont(font);
+  // timeText.setString("World Time: " + std::to_string(timeElapsed));
+  // timeText.setCharacterSize(24);
+  // timeText.setFillColor(sf::Color::White);
+  // timeText.setPosition(10, 10);
+  // window.draw(timeText);
 
   for (const auto& pair : tileCharacterMap) {
     size_t tileID = pair.first;
