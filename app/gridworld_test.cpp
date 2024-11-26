@@ -28,12 +28,12 @@ int main() {
     // auto actor = std::make_unique<RandomActor>(randomSeed);
 
     // smart action policy
-    FOMAP fomap(64, 16);
-    StateValueEstimator v(256);
+    FOMAP fomap(1026, 1026);
+    StateValueEstimator v(1026);
     auto actor = std::make_unique<SmartActor>(&gridWorld, &v, &fomap, randomSeed);
 
     // Add a character with action policy
-    CharacterTraits traits(48000, 10, 48000, 1600, 1600/24);
+    CharacterTraits traits(48000, 100, 48000, 0, 1600/24);
     auto character = std::make_unique<Character>(std::move(actor), traits);
     Coord2D coord = std::make_pair(5, 5);
     gridWorld.AddCharacter(std::move(character), coord);
