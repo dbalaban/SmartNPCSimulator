@@ -8,6 +8,8 @@
 #include "FOMAP.hpp"
 #include <vector>
 
+namespace rl {
+
 class SmartActor : public AbstractActor {
 static const size_t ElementID = 5;
 public:
@@ -39,5 +41,7 @@ private:
   torch::optim::Adam optimizer_actor;
   torch::optim::RMSprop optimizer_critic;
 };
+
+} // namespace rl
 
 #endif // SMART_ACTOR_HPP

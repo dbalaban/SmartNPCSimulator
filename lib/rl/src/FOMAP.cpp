@@ -5,6 +5,8 @@
 #include "abstract_action.hpp"
 #include "gridworld.hpp"
 
+using namespace rl;
+
 FOMAP::FOMAP(const size_t projection_size,
             const size_t output_size) :
     projection_size(projection_size),

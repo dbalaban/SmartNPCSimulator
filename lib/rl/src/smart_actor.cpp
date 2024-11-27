@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+using namespace rl;
+
 SmartActor::SmartActor(GridWorld* world,
                       StateValueEstimator* v,
                       FOMAP* fomap,
@@ -15,8 +17,8 @@ SmartActor::SmartActor(GridWorld* world,
     last_action_prob(torch::tensor(0.0)),
     last_state_value(torch::tensor(0.0)),
     discounting_factor(0.9),
-    learning_rate_actor(10),
-    learning_rate_critic(.01),
+    learning_rate_actor(10.0),
+    learning_rate_critic(0.01),
     decay_factor(1.0),
     optimizer_actor(fomap->parameters(), torch::optim::AdamOptions(learning_rate_actor)),
     optimizer_critic(v->parameters(), torch::optim::RMSpropOptions(learning_rate_critic)) {}

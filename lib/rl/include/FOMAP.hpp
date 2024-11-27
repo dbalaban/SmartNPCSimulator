@@ -5,6 +5,8 @@
 
 #include <torch/torch.h>
 
+namespace rl {
+
 class FOMAP : public torch::nn::Module {
 public:
   FOMAP(const size_t projection_size,
@@ -43,5 +45,7 @@ private:
   torch::nn::Linear output_layer;
   
 };
+  
+} // namespace rl
 
 #endif // FOMAP_HPP

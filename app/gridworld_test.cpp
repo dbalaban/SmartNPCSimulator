@@ -28,9 +28,9 @@ int main() {
     // auto actor = std::make_unique<RandomActor>(randomSeed);
 
     // smart action policy
-    FOMAP fomap(1026, 1026);
-    StateValueEstimator v(1026);
-    auto actor = std::make_unique<SmartActor>(&gridWorld, &v, &fomap, randomSeed);
+    rl::FOMAP fomap(1026, 1026);
+    rl::StateValueEstimator v(1026);
+    auto actor = std::make_unique<rl::SmartActor>(&gridWorld, &v, &fomap, randomSeed);
 
     // Add a character with action policy
     CharacterTraits traits(48000, 100, 48000, 0, 1600/24);

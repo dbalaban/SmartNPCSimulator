@@ -8,6 +8,8 @@
 #include "abstract_action.hpp"
 #include "gridworld.hpp"
 
+using namespace rl;
+
 StateValueEstimator::StateValueEstimator(size_t projection_size) :
     projection_size(projection_size),
     grid_state_size(GridWorld::FeatureSize),

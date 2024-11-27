@@ -4,6 +4,8 @@
 #include <vector>
 #include <torch/torch.h>
 
+namespace rl {
+
 class StateValueEstimator : public torch::nn::Module {
 public:
   // Constructor
@@ -46,5 +48,7 @@ private:
   torch::nn::Linear output_layer2;
 
 };
+  
+} // namespace rl
 
 #endif // STATE_VALUE_ESTIMATOR_HPP
