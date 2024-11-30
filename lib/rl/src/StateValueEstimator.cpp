@@ -10,8 +10,8 @@
 
 using namespace rl;
 
-StateValueEstimator::StateValueEstimator(size_t projection_size) :
-    projection_size(projection_size),
+StateValueEstimator::StateValueEstimator(const ParamReader& reader) :
+    projection_size(reader.getParam<size_t>("StateValueEstimator", "projection_size", 1024)),
     grid_state_size(GridWorld::FeatureSize),
     tile_state_size(Tile::FeatureSize),
     char_state_size(Character::FeatureSize),

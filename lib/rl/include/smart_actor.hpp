@@ -6,6 +6,8 @@
 #include "gridworld.hpp"
 #include "StateValueEstimator.hpp"
 #include "FOMAP.hpp"
+#include "param_reader.hpp"
+
 #include <vector>
 
 namespace rl {
@@ -16,6 +18,7 @@ public:
   SmartActor(GridWorld* world,
              StateValueEstimator* v,
              FOMAP* fomap,
+             const ParamReader& reader,
              size_t randomSeed = 0);
 
   void update(double reward) override;

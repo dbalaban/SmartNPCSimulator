@@ -4,12 +4,14 @@
 #include <vector>
 #include <torch/torch.h>
 
+#include "param_reader.hpp"
+
 namespace rl {
 
 class StateValueEstimator : public torch::nn::Module {
 public:
   // Constructor
-  StateValueEstimator(size_t projection_size);
+  StateValueEstimator(const ParamReader& reader);
 
   // Destructor
   ~StateValueEstimator();

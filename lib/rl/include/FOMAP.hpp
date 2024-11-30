@@ -5,12 +5,13 @@
 
 #include <torch/torch.h>
 
+#include "param_reader.hpp"
+
 namespace rl {
 
 class FOMAP : public torch::nn::Module {
 public:
-  FOMAP(const size_t projection_size,
-        const size_t output_size);
+  FOMAP(const ParamReader& reader);
   torch::Tensor forward(torch::Tensor grid_state,
                         torch::Tensor tile_state,
                         torch::Tensor character_state,
