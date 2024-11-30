@@ -5,13 +5,11 @@
 
 #include <torch/torch.h>
 
-#include "param_reader.hpp"
-
 namespace rl {
 
 class FOMAP : public torch::nn::Module {
 public:
-  FOMAP(const data_management::ParamReader& reader);
+  FOMAP();
   torch::Tensor forward(torch::Tensor grid_state,
                         torch::Tensor tile_state,
                         torch::Tensor character_state,

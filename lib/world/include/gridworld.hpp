@@ -11,18 +11,20 @@
 #include "character.hpp"
 
 typedef std::pair<size_t, size_t> Coord2D;
+typedef std::reference_wrapper<ResourceManager> ResourceManagerRef;
 
 class GridWorld : public Element<GridWorld> {
 public:
   static const size_t ElementID = 0;
   static const size_t FeatureSize = 5;
 
-  GridWorld(size_t width, size_t height,
-            std::vector<ResourceManager> tile_prototypes,
-            std::vector<double> weights,
-            size_t randomSeed = 0);
+  void addTilePrototypes(std::vector<ResourceManagerRef>& tile_prototypes,
+                         std::vector<double>& weights);
 
-  ~GridWorld();
+  static GridWorld& getInstance() {
+    static GridWorld instance;
+    return instance;
+  }
 
   std::unique_ptr<double[]> getFeatures() const override {
     std::unique_ptr<double[]> features(new double[FeatureSize]);
@@ -75,8 +77,14 @@ public:
   }
 
 private:
-  size_t width;
-  size_t height;
+  GridWorld();
+  ~GridWorld();
+
+  GridWorld(const GridWorld&) = delete;
+  GridWorld& operator=(const GridWorld&) = delete;
+
+  const size_t width;
+  const size_t height;
   // grid of tiles
   std::vector<std::vector<Tile*>> tiles;
   // character ID to character pointer
@@ -89,7 +97,7 @@ private:
   std::unordered_map<size_t, std::unordered_set<size_t>> tileCharacterMap;
 
   size_t tileCount;
-  std::vector<ResourceManager> tile_prototypes;
+  std::vector<ResourceManagerRef> tile_prototypes;
   std::vector<double> weights;
 
   const size_t randomSeed;

@@ -1,16 +1,14 @@
 #include "gridworld.hpp"
 #include "character.hpp" // Include the header file for the Character class
 
-GridWorld::GridWorld(size_t width, size_t height,
-                     std::vector<ResourceManager> tile_proptypes,
-                     std::vector<double> weights, size_t randomSeed)
+#include "param_reader.hpp"
+
+GridWorld::GridWorld()
     : Element<GridWorld>(), 
-    width(width), 
-    height(height), 
-    tile_prototypes(tile_proptypes), 
-    weights(weights), 
-    randomSeed(randomSeed) {
-  tileCount = 0;
+    width(data_management::ParamReader::getInstance().getParam<size_t>("GridWorld", "width", 10)),
+    height(data_management::ParamReader::getInstance().getParam<size_t>("GridWorld", "height", 10)),
+    randomSeed(data_management::ParamReader::getInstance().getParam<size_t>("GridWorld", "randomSeed", 42)),
+    tileCount(0) {
   tiles.resize(width);
   for (size_t i = 0; i < width; i++) {
     tiles[i].resize(height);
@@ -23,6 +21,19 @@ GridWorld::~GridWorld() {
       delete tiles[i][j];
     }
   }
+}
+
+void GridWorld::addTilePrototypes(std::vector<ResourceManagerRef>& tile_prototypes,
+                                  std::vector<double>& weights) {
+  if (tile_prototypes.size() != weights.size()) {
+    throw std::invalid_argument("tile_prototypes and weights must have the same size");
+  }
+  // append the tile prototypes and weights to the existing ones
+  this->tile_prototypes.insert(this->tile_prototypes.end(),
+                               tile_prototypes.begin(),
+                               tile_prototypes.end());
+  this->weights.insert(this->weights.end(), weights.begin(), weights.end());
+  tile_prototypes.clear();
 }
 
 void GridWorld::update(double elapsedTime) {

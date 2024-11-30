@@ -7,11 +7,12 @@
 #include "character.hpp"
 #include "abstract_action.hpp"
 #include "gridworld.hpp"
+#include "param_reader.hpp"
 
 using namespace rl;
 
-StateValueEstimator::StateValueEstimator(const data_management::ParamReader& reader) :
-    projection_size(reader.getParam<size_t>("StateValueEstimator", "projection_size", 1024)),
+StateValueEstimator::StateValueEstimator() :
+    projection_size(data_management::ParamReader::getInstance().getParam<size_t>("StateValueEstimator", "projection_size", 1024)),
     grid_state_size(GridWorld::FeatureSize),
     tile_state_size(Tile::FeatureSize),
     char_state_size(Character::FeatureSize),

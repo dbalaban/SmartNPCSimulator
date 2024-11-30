@@ -16,14 +16,18 @@ namespace data_management {
 
 class ParamReader {
 public:
-  ParamReader(const ClassConfigFiles& configFilePath) {
+  void addConfigFiles(const ClassConfigFiles& configFilePath) {
     for (const auto& classConfig : configFilePath) {
       const std::string& className = classConfig.first;
       const std::string& filePath = classConfig.second;
       config[className] = loadYamlFile(filePath);
     }
   }
-  ~ParamReader() = default;
+
+  static ParamReader& getInstance() {
+    static ParamReader instance;
+    return instance;
+  }
 
   template<typename T>
   T getParam(const std::string& className,
@@ -35,13 +39,23 @@ public:
       auto paramIt = node.find(paramName);
       if (paramIt != node.end()) {
         return convert<T>(paramIt->second);
+      } else {
+        std::cerr << "Param " << paramName << " not found in class " << className << "!" << std::endl;
       }
+    } else {
+      std::cerr << "Class " << className << " not found in config!" << std::endl;
     }
     return defaultValue;
   }
 
 private:
   std::unordered_map<std::string, std::unordered_map<std::string, std::string>> config;
+
+  ParamReader() = default;
+  ~ParamReader() = default;
+
+  ParamReader(const ParamReader&) = delete;
+  ParamReader& operator=(const ParamReader&) = delete;
 
   std::unordered_map<std::string, std::string> loadYamlFile(const std::string& filePath) const {
     std::unordered_map<std::string, std::string> result;

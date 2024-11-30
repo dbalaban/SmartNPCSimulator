@@ -6,7 +6,6 @@
 #include "gridworld.hpp"
 #include "StateValueEstimator.hpp"
 #include "FOMAP.hpp"
-#include "param_reader.hpp"
 
 #include <vector>
 
@@ -15,20 +14,16 @@ namespace rl {
 class SmartActor : public AbstractActor {
 static const size_t ElementID = 5;
 public:
-  SmartActor(GridWorld* world,
-             StateValueEstimator* v,
-             FOMAP* fomap,
-             const data_management::ParamReader& reader,
-             size_t randomSeed = 0);
+  SmartActor();
 
   void update(double reward) override;
 
   ActionDesc selectAction(const std::vector<ActionDesc>& actions) override;
 
 private:
-  GridWorld* world; // Global reference object
-  StateValueEstimator* v; // State value estimator
-  FOMAP* fomap; // Fully Observable Markovian Action Policy
+  GridWorld& world; // Global reference object
+  StateValueEstimator v; // State value estimator
+  FOMAP fomap; // Fully Observable Markovian Action Policy
 
   size_t randomSeed; // Random seed for the actor
   std::default_random_engine randomEngine; // Random engine for the actor

@@ -5,11 +5,13 @@
 #include "abstract_action.hpp"
 #include "gridworld.hpp"
 
+#include "param_reader.hpp"
+
 using namespace rl;
 
-FOMAP::FOMAP(const data_management::ParamReader& reader) :
-    projection_size(reader.getParam<size_t>("FOMAP", "projection_size", 1024)),
-    output_size(reader.getParam<size_t>("FOMAP", "output_size", 1024)),
+FOMAP::FOMAP() :
+    projection_size(data_management::ParamReader::getInstance().getParam<size_t>("FOMAP", "projection_size", 1024)),
+    output_size(data_management::ParamReader::getInstance().getParam<size_t>("FOMAP", "output_size", 1024)),
     grid_state_size(GridWorld::FeatureSize),
     tile_state_size(Tile::FeatureSize),
     character_state_size(Character::FeatureSize),
