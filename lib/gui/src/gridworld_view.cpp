@@ -4,14 +4,20 @@
 #include <SFML/Graphics.hpp>
 
 #include "gridworld.hpp"
+#include "param_reader.hpp"
 
-GridWorldView::GridWorldView() {}
+GridWorldView::GridWorldView():
+    max_time_elapsed(data_management::ParamReader::getInstance().getParam<float>("Data", "max_time", 0)) {}
 
 void GridWorldView::setTimeElapsed(float timeElapsed) {
   this->timeElapsed = timeElapsed;
 }
 
 void GridWorldView::draw(sf::RenderWindow& window) {
+  if (timeElapsed > max_time_elapsed && max_time_elapsed > 0) {
+    window.close();
+    return;
+  }
   const GridWorld& model = GridWorld::getInstance();
   size_t width = model.getWidth();
   size_t height = model.getHeight();
