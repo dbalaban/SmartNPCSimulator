@@ -11,7 +11,7 @@ namespace rl {
 class StateValueEstimator : public torch::nn::Module {
 public:
   // Constructor
-  StateValueEstimator(const ParamReader& reader);
+  StateValueEstimator(const data_management::ParamReader& reader);
 
   // Destructor
   ~StateValueEstimator();

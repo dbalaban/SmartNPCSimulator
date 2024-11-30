@@ -8,7 +8,7 @@ using namespace rl;
 SmartActor::SmartActor(GridWorld* world,
                       StateValueEstimator* v,
                       FOMAP* fomap,
-                      const ParamReader& reader,
+                      const data_management::ParamReader& reader,
                       size_t randomSeed) : 
     world(world),
     v(v),

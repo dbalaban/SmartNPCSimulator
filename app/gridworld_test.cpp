@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
     for (int i = 1; i < argc; i++) {
         configFiles.push_back(ClassConfigFile("GridWorld", argv[i]));
     }
-    ParamReader reader(configFiles);
+    data_management::ParamReader reader(configFiles);
     // Create a GridWorld instance
     size_t width = reader.getParam<size_t>("GridWorld", "width", 10);
     size_t height = reader.getParam<size_t>("GridWorld", "height", 10);

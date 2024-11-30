@@ -18,7 +18,7 @@ public:
   SmartActor(GridWorld* world,
              StateValueEstimator* v,
              FOMAP* fomap,
-             const ParamReader& reader,
+             const data_management::ParamReader& reader,
              size_t randomSeed = 0);
 
   void update(double reward) override;

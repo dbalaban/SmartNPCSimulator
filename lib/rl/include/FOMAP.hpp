@@ -11,7 +11,7 @@ namespace rl {
 
 class FOMAP : public torch::nn::Module {
 public:
-  FOMAP(const ParamReader& reader);
+  FOMAP(const data_management::ParamReader& reader);
   torch::Tensor forward(torch::Tensor grid_state,
                         torch::Tensor tile_state,
                         torch::Tensor character_state,

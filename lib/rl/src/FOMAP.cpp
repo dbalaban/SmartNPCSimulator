@@ -7,7 +7,7 @@
 
 using namespace rl;
 
-FOMAP::FOMAP(const ParamReader& reader) :
+FOMAP::FOMAP(const data_management::ParamReader& reader) :
     projection_size(reader.getParam<size_t>("FOMAP", "projection_size", 1024)),
     output_size(reader.getParam<size_t>("FOMAP", "output_size", 1024)),
     grid_state_size(GridWorld::FeatureSize),
