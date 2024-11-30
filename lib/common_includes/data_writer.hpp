@@ -70,10 +70,10 @@ public:
     }
     if (columnMap.find(label) == columnMap.end()) {
       columnMap[label] = nextColumnID++;
-      writeValue(false); // Column header not seen before
+      writeValue(true); // Column header not seen before
       writeString(label);
     } else {
-      writeValue(true); // Column header seen before
+      writeValue(false); // Column header seen before
     }
     writeValue(columnMap[label]);
     writeValue(static_cast<unsigned int>(datatype));
