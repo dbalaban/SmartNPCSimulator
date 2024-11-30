@@ -7,15 +7,25 @@
 #include "smart_actor.hpp"
 #include "tile.hpp"
 #include "param_reader.hpp"
+#include "data_writer.hpp"
 
 int main(int argc, char** argv) {
     // takes list of config files as arguments
     ClassConfigFiles configFiles;
     for (int i = 1; i < argc; i++) {
-        configFiles.push_back(ClassConfigFile("GridWorld", argv[i]));
+        // get the config file name
+        std::string file_path = argv[i];
+        std::string class_name = file_path.substr(0, file_path.find_last_of('.'));
+        configFiles.push_back(ClassConfigFile(class_name, argv[i]));
     }
     data_management::ParamReader& reader = data_management::ParamReader::getInstance();
     reader.addConfigFiles(configFiles);
+
+    data_management::DataWriter& writer = data_management::DataWriter::getInstance();
+    std::string data_file = reader.getParam<std::string>("Data", "filename", "trial.data");
+    std::string write_dir = reader.getParam<std::string>("Data", "directory", "data/raw/");
+    std::string write_path = write_dir + data_file;
+    writer.openFile(write_path);
 
     ResourceManager grain{Resources{200}, Resources{10}, Resources{200}};
 
