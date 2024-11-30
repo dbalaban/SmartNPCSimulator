@@ -3,8 +3,10 @@
 #include <iostream>
 
 #include "param_reader.hpp"
+#include "data_writer.hpp"
 
 using namespace rl;
+using namespace data_management;
 
 SmartActor::SmartActor() :
     world(GridWorld::getInstance()),
@@ -22,7 +24,6 @@ SmartActor::SmartActor() :
     optimizer_critic(v.parameters(), torch::optim::RMSpropOptions(learning_rate_critic)) {}
 
 ActionDesc SmartActor::selectAction(const std::vector<ActionDesc>& actions) {
-  std::cout << "Selecting action" << std::endl;
   // Get the current state
   std::unique_ptr<double[]> grid_state = world.getFeatures();
   std::unique_ptr<double[]> tile_state = world.getTileFeatures();
@@ -46,24 +47,27 @@ ActionDesc SmartActor::selectAction(const std::vector<ActionDesc>& actions) {
 
   // Forward pass through the FOMAP
   auto action_probs = fomap.forward(grid_tensor, tile_tensor, character_tensor, actions_tensor);
+  std::vector<double> action_probs_vec;
+  for (size_t i = 0; i < action_probs.size(0); i++) {
+    action_probs_vec.push_back(action_probs[i].item<double>());
+  }
 
-  std::cout << "state value: " << last_state_value << std::endl;
-  std::cout << "action probs: " << action_probs.transpose(1,0) << std::endl;
+  DataWriter& writer = DataWriter::getInstance();
+  writer.writeData<double>("State Value", DataType::DOUBLE, last_state_value.item<double>());
+  writer.writeData<std::vector<double>>("Action Probabilities", DataType::VECTOR, action_probs_vec);
 
   // weighted random selection of index
   std::discrete_distribution<size_t> distribution(action_probs.data_ptr<float>(), action_probs.data_ptr<float>() + action_probs.size(0));
   size_t action_index = distribution(randomEngine);
-  std::cout << "selected action: " << action_index+1 << " / " << actions.size() << std::endl;
+  writer.writeData<size_t>("Selected Action Index", DataType::SIZE, action_index);
+  writer.writeData<size_t>("Selected Action ID", DataType::SIZE, actions[action_index].ActionID);
 
   last_action_prob = action_probs[action_index];
-
-  std::cout << "Selected action: " << action_index << " / " << actions.size() << std::endl;
 
   return actions[action_index];
 }
 
 void SmartActor::update(double reward) {
-  std::cout << "Updating actor" << std::endl;
   // Get the current state
   std::unique_ptr<double[]> grid_state = world.getFeatures();
   std::unique_ptr<double[]> tile_state = world.getTileFeatures();
@@ -84,8 +88,10 @@ void SmartActor::update(double reward) {
   auto td_error = reward + discounting_factor * current_value - last_state_value;
   auto v_loss = td_error.pow(2);
 
-  std::cout << "reward: " << reward << std::endl;
-  std::cout << "td error: " << td_error << std::endl;
+  DataWriter& writer = DataWriter::getInstance();
+  writer.writeData<double>("Estimated Current Value", DataType::DOUBLE, current_value.item<double>());
+  writer.writeData<double>("Reward", DataType::DOUBLE, reward);
+  writer.writeData<double>("TD Error", DataType::DOUBLE, td_error.item<double>());
 
   // Update the value estimator
   v.zero_grad();
@@ -100,5 +106,4 @@ void SmartActor::update(double reward) {
   optimizer_actor.step();
   decay_factor *= discounting_factor;
   decay_factor = std::max(1e-5, decay_factor);
-  std::cout << "Updated actor" << std::endl;
 }

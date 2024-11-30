@@ -3,13 +3,16 @@
 #include <cmath>
 #include <SFML/Graphics.hpp>
 
-GridWorldView::GridWorldView(GridWorld& model) : model(model) {}
+#include "gridworld.hpp"
+
+GridWorldView::GridWorldView() {}
 
 void GridWorldView::setTimeElapsed(float timeElapsed) {
   this->timeElapsed = timeElapsed;
 }
 
 void GridWorldView::draw(sf::RenderWindow& window) {
+  const GridWorld& model = GridWorld::getInstance();
   size_t width = model.getWidth();
   size_t height = model.getHeight();
   float tileWidth = window.getSize().x / width;

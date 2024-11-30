@@ -84,11 +84,11 @@ void GridWorld::update(double elapsedTime) {
   }
 }
 
-Tile* GridWorld::getTile(Coord2D coord) {
+Tile* GridWorld::getTile(Coord2D coord) const {
   return tiles[coord.first][coord.second];
 }
 
-Tile* GridWorld::getTile(size_t tileID) {
+Tile* GridWorld::getTile(size_t tileID) const {
   Coord2D coord = getTileCoord(tileID);
   return tiles[coord.first][coord.second];
 }

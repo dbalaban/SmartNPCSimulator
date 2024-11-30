@@ -2,6 +2,8 @@
 #include "move_action.hpp"
 #include "harvest_action.hpp"
 
+#include "data_writer.hpp"
+
 void Character::getAvailableActions(std::vector<ActionDesc>& actions) {
   actions.clear();
   Tile* tile = getPosition();
@@ -18,4 +20,49 @@ void Character::getAvailableActions(std::vector<ActionDesc>& actions) {
   // harvest action
   ActionDesc harvestAction = {ElementID, getInstanceID(), HarvestAction::ActionID, tile->getElementID(), tile->getInstanceID(), this, tile};
   actions.push_back(harvestAction);
+}
+
+void Character::update(double elapsedTime) {
+  burnKcal(traits.kcal_burn_rate * elapsedTime);
+  if (traits.kcal_on_hand > 0 && traits.health < traits.max_health) {
+    traits.health += traits.health_regen_rate * elapsedTime;
+    reward += traits.health_regen_rate * elapsedTime;
+    if (traits.health > traits.max_health) {
+      traits.health = traits.max_health;
+    }
+  }
+
+  std::string name = "Character " + std::to_string(getInstanceID());
+  data_management::DataWriter& writer = data_management::DataWriter::getInstance();
+  writer.writeData<double>(name + " Health", data_management::DataType::DOUBLE, traits.health);
+  writer.writeData<double>(name + " Kcal", data_management::DataType::DOUBLE, traits.kcal_on_hand);
+
+  actor->update(reward);
+  reward = 0;
+}
+
+std::unique_ptr<double[]> Character::getFeatures() const {
+  std::unique_ptr<double[]> features(new double[FeatureSize]);
+  features[0] = ElementID;
+  features[1] = getInstanceID();
+  features[2] = traits.health;
+  features[3] = traits.health_regen_rate;
+  features[4] = traits.max_health;
+  features[5] = traits.kcal_on_hand;
+  features[6] = traits.kcal_burn_rate;
+  features[7] = position->getInstanceID();
+  return features;
+}
+
+void Character::burnKcal(double kcal) {
+  data_management::DataWriter& writer = data_management::DataWriter::getInstance();
+  writer.writeData<double>("Kcal Burned", data_management::DataType::DOUBLE, kcal);
+  if (traits.kcal_on_hand > kcal) {
+    traits.kcal_on_hand -= kcal;
+  } else {
+    double remaining = kcal - traits.kcal_on_hand;
+    traits.kcal_on_hand = 0;
+    traits.health -= remaining;
+    reward -= remaining;
+  }
 }

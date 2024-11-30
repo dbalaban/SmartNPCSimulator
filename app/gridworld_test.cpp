@@ -41,8 +41,8 @@ int main(int argc, char** argv) {
     gridWorld.AddCharacter(std::move(character), coord);
 
     // Create the view and controller
-    GridWorldView view(gridWorld);
-    GridWorldController controller(gridWorld, view);
+    GridWorldView view;
+    GridWorldController controller(view);
 
     // Create the window
     sf::RenderWindow window(sf::VideoMode(800, 800), "GridWorld");

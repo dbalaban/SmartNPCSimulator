@@ -40,9 +40,9 @@ public:
 
   std::unique_ptr<double[]> getCharacterFeatures() const;
 
-  Tile* getTile(Coord2D coord);
+  Tile* getTile(Coord2D coord) const;
 
-  Tile* getTile(size_t tileID);
+  Tile* getTile(size_t tileID) const;
 
   const int getWidth() const;
 

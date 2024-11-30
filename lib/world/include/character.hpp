@@ -39,47 +39,15 @@ public:
 
   ~Character() = default;
 
-  void update(double elapsedTime) override {
-    burnKcal(traits.kcal_burn_rate * elapsedTime);
-    if (traits.kcal_on_hand > 0 && traits.health < traits.max_health) {
-      traits.health += traits.health_regen_rate * elapsedTime;
-      reward += traits.health_regen_rate * elapsedTime;
-      if (traits.health > traits.max_health) {
-        traits.health = traits.max_health;
-      }
-    }
+  void update(double elapsedTime) override;
 
-    actor->update(reward);
-    reward = 0;
-  }
-
-  std::unique_ptr<double[]> getFeatures() const override {
-    std::unique_ptr<double[]> features(new double[FeatureSize]);
-    features[0] = ElementID;
-    features[1] = getInstanceID();
-    features[2] = traits.health;
-    features[3] = traits.health_regen_rate;
-    features[4] = traits.max_health;
-    features[5] = traits.kcal_on_hand;
-    features[6] = traits.kcal_burn_rate;
-    features[7] = position->getInstanceID();
-    return features;
-  }
+  std::unique_ptr<double[]> getFeatures() const override;
 
   void addResources(const Resources& resources) {
     traits.kcal_on_hand += resources.kcal;
   }
 
-  void burnKcal(double kcal) {
-    if (traits.kcal_on_hand > kcal) {
-      traits.kcal_on_hand -= kcal;
-    } else {
-      double remaining = kcal - traits.kcal_on_hand;
-      traits.kcal_on_hand = 0;
-      traits.health -= remaining;
-      reward -= remaining;
-    }
-  }
+  void burnKcal(double kcal);
 
   void setPosition(Tile* tile) {
     position = tile;
