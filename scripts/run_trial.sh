@@ -1,0 +1,1 @@
+./bin/GridWorldApp config/Data.yaml config/FOMAP.yaml config/SmartActor.yaml
