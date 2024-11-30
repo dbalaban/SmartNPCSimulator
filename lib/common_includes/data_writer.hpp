@@ -45,41 +45,39 @@ public:
   }
 
   template<typename T>
+  bool verifyTypeMatch(const DataType datatype, const T& value) {
+    switch (datatype) {
+      case DataType::BOOLEAN:
+        return std::is_same<T, bool>::value;
+      case DataType::INT:
+        return std::is_same<T, int>::value;
+      case DataType::UINT:
+        return std::is_same<T, unsigned int>::value;
+      case DataType::DOUBLE:
+        return std::is_same<T, double>::value;
+      case DataType::STRING:
+        return std::is_same<T, std::string>::value;
+      default:
+        return false;
+    }
+  }
+
+  template<typename T>
   void writeData(const std::string& label, const DataType datatype, const T& value) {
+    if (!verifyTypeMatch(datatype, value)) {
+      std::cerr << "Data type does not match value type, skipping write of column: " << label << std::endl;
+      return;
+    }
     if (columnMap.find(label) == columnMap.end()) {
       columnMap[label] = nextColumnID++;
-      writeBoolean(false); // Column header not seen before
+      writeValue(false); // Column header not seen before
       writeString(label);
     } else {
-      writeBoolean(true); // Column header seen before
+      writeValue(true); // Column header seen before
     }
-    writeUInt(columnMap[label]);
-    writeUInt(static_cast<unsigned int>(datatype));
-    switch (datatype) {
-    case DataType::BOOLEAN:
-      bool bValue = static_cast<bool>(value);
-      writeBoolean(bValue);
-      break;
-    case DataType::INT:
-      int iValue = static_cast<int>(value);
-      writeInt(iValue);
-      break;
-    case DataType::UINT:
-      unsigned int uValue = static_cast<unsigned int>(value);
-      writeUInt(uValue);
-      break;
-    case DataType::DOUBLE:
-      double dValue = static_cast<double>(value);
-      writeDouble(dValue);
-      break;
-    case DataType::STRING:
-      std::string sValue = static_cast<std::string>(value);
-      writeString(sValue);
-      break;
-    default:
-      std::cerr << "Writing Unknown data type, file corrupted" << std::endl;
-      break;
-    }
+    writeValue(columnMap[label]);
+    writeValue(static_cast<unsigned int>(datatype));
+    writeValue(value);
   }
 
   void endLine() {
@@ -97,25 +95,14 @@ private:
   DataWriter(const DataWriter&) = delete;
   DataWriter& operator=(const DataWriter&) = delete;
 
-  void writeBoolean(bool value) {
-    file.write(reinterpret_cast<const char*>(&value), sizeof(value));
-  }
-
-  void writeInt(int value) {
-    file.write(reinterpret_cast<const char*>(&value), sizeof(value));
-  }
-
-  void writeDouble(double value) {
-    file.write(reinterpret_cast<const char*>(&value), sizeof(value));
-  }
-
-  void writeUInt(unsigned int value) {
+  template <typename T>
+  void writeValue(T value) {
     file.write(reinterpret_cast<const char*>(&value), sizeof(value));
   }
 
   void writeString(const std::string& str) {
     size_t length = str.size();
-    writeUInt(length);
+    writeValue(length);
     file.write(str.c_str(), length);
   }
 
