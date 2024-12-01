@@ -1,1 +1,1 @@
-./bin/GridWorldApp config/Data.yaml config/FOMAP.yaml config/SmartActor.yaml
+./bin/GridWorldApp config/Data.yaml config/FOMAP.yaml config/SmartActor.yaml config/GridWorld.yaml config/StateValueEstimator.yaml

@@ -14,13 +14,23 @@ typedef std::vector<ClassConfigFile> ClassConfigFiles;
 
 namespace data_management {
 
+typedef std::unordered_map<std::string, std::string> ClassConfig;
+typedef std::unique_ptr<ClassConfig> ClassConfigPtr;
+typedef std::unordered_map<std::string, ClassConfigPtr> Config;
+typedef std::unique_ptr<Config> ConfigPtr;
+
 class ParamReader {
 public:
   void addConfigFiles(const ClassConfigFiles& configFilePath) {
     for (const auto& classConfig : configFilePath) {
       const std::string& className = classConfig.first;
       const std::string& filePath = classConfig.second;
-      config[className] = loadYamlFile(filePath);
+      ClassConfigPtr classConfigPtr = std::make_unique<ClassConfig>();
+      if (loadYamlFile(filePath, classConfigPtr)) {
+        (*config)[className] = std::move(classConfigPtr);
+      } else {
+        std::cerr << "Failed to load config file " << filePath << std::endl;
+      }
     }
   }
 
@@ -33,12 +43,10 @@ public:
   T getParam(const std::string& className,
              const std::string& paramName,
              const T& defaultValue) const {
-    auto it = config.find(className);
-    if (it != config.end()) {
-      const auto& node = it->second;
-      auto paramIt = node.find(paramName);
-      if (paramIt != node.end()) {
-        return convert<T>(paramIt->second);
+    if (config->count(className) > 0) {
+      const ClassConfigPtr& node = config->at(className);
+      if (node->count(paramName) > 0) {
+        return convert<T>(node->at(paramName));
       } else {
         std::cerr << "Param " << paramName << " not found in class " << className << "!" << std::endl;
       }
@@ -49,20 +57,19 @@ public:
   }
 
 private:
-  std::unordered_map<std::string, std::unordered_map<std::string, std::string>> config;
+  ConfigPtr config;
 
-  ParamReader() = default;
+  ParamReader() : config(std::make_unique<Config>()) {}
   ~ParamReader() = default;
 
   ParamReader(const ParamReader&) = delete;
   ParamReader& operator=(const ParamReader&) = delete;
 
-  std::unordered_map<std::string, std::string> loadYamlFile(const std::string& filePath) const {
-    std::unordered_map<std::string, std::string> result;
+  bool loadYamlFile(const std::string& filePath, ClassConfigPtr& result) const {
     FILE* file = fopen(filePath.c_str(), "r");
     if (!file) {
       std::cerr << "Failed to open file: " << filePath << std::endl;
-      return result;
+      return false;
     }
 
     yaml_parser_t parser;
@@ -71,7 +78,7 @@ private:
     if (!yaml_parser_initialize(&parser)) {
       std::cerr << "Failed to initialize parser!" << std::endl;
       fclose(file);
-      return result;
+      return false;
     }
 
     yaml_parser_set_input_file(&parser, file);
@@ -91,7 +98,7 @@ private:
           key = value;
           readingKey = false;
         } else {
-          result[key] = value;
+          (*result)[key] = value;
           readingKey = true;
         }
       }
@@ -107,7 +114,7 @@ private:
     yaml_parser_delete(&parser);
     fclose(file);
 
-    return result;
+    return true;
   }
 
   template<typename T>

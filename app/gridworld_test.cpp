@@ -15,7 +15,18 @@ int main(int argc, char** argv) {
     for (int i = 1; i < argc; i++) {
         // get the config file name
         std::string file_path = argv[i];
-        std::string class_name = file_path.substr(0, file_path.find_last_of('.'));
+        int extension_index = file_path.find_last_of('.');
+        if (extension_index == std::string::npos) {
+            std::cerr << "Invalid config file " << file_path << std::endl;
+            continue;
+        }
+        int path_end = file_path.find_last_of('/');
+        if (extension_index < path_end) {
+            std::cerr << "Invalid config file " << file_path << std::endl;
+            continue;
+        }
+        std::string class_name = file_path.substr(path_end+1, extension_index - path_end - 1);
+        std::cout << "Found class " << class_name << " with config file " << file_path << std::endl;
         configFiles.push_back(ClassConfigFile(class_name, argv[i]));
     }
     data_management::ParamReader& reader = data_management::ParamReader::getInstance();
