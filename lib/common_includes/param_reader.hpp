@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <map>
 #include <vector>
 #include <yaml.h>
 #include <fstream>
@@ -16,56 +17,59 @@ namespace data_management {
 
 typedef std::unordered_map<std::string, std::string> ClassConfig;
 typedef std::unique_ptr<ClassConfig> ClassConfigPtr;
-typedef std::unordered_map<std::string, ClassConfigPtr> Config;
+typedef std::map<std::string, std::string> Config;
 typedef std::unique_ptr<Config> ConfigPtr;
 
 class ParamReader {
 public:
+
   void addConfigFiles(const ClassConfigFiles& configFilePath) {
     for (const auto& classConfig : configFilePath) {
       const std::string& className = classConfig.first;
       const std::string& filePath = classConfig.second;
       ClassConfigPtr classConfigPtr = std::make_unique<ClassConfig>();
-      if (loadYamlFile(filePath, classConfigPtr)) {
-        (*config)[className] = std::move(classConfigPtr);
-      } else {
+      if (!loadYamlFile(filePath, className)) {
         std::cerr << "Failed to load config file " << filePath << std::endl;
       }
     }
   }
 
   static ParamReader& getInstance() {
-    static ParamReader instance;
-    return instance;
+    static ParamReader* instance = NULL;
+
+    if (instance == NULL) {
+      instance = new ParamReader();
+    }
+    return *instance;
   }
 
   template<typename T>
-  T getParam(const std::string& className,
-             const std::string& paramName,
+  T getParam(const char* className,  //const std::string& className,
+             const char* paramName,  //const std::string& paramName,
              const T& defaultValue) const {
-    if (config->count(className) > 0) {
-      const ClassConfigPtr& node = config->at(className);
-      if (node->count(paramName) > 0) {
-        return convert<T>(node->at(paramName));
-      } else {
-        std::cerr << "Param " << paramName << " not found in class " << className << "!" << std::endl;
-      }
+
+    std::string key(className);
+    key += ".";
+    key += paramName;
+
+        std::string v = (*config)[key];
+    if (v.length() > 0) {
+      return convert<T>(v);
     } else {
-      std::cerr << "Class " << className << " not found in config!" << std::endl;
+      std::cerr << "Key " << key << " not found in config!" << std::endl;
     }
     return defaultValue;
   }
 
 private:
   ConfigPtr config;
-
+    
   ParamReader() : config(std::make_unique<Config>()) {}
-  ~ParamReader() = default;
-
+    ~ParamReader() = default;
   ParamReader(const ParamReader&) = delete;
   ParamReader& operator=(const ParamReader&) = delete;
 
-  bool loadYamlFile(const std::string& filePath, ClassConfigPtr& result) const {
+  bool loadYamlFile(const std::string& filePath, const std::string& className) const {
     FILE* file = fopen(filePath.c_str(), "r");
     if (!file) {
       std::cerr << "Failed to open file: " << filePath << std::endl;
@@ -83,10 +87,10 @@ private:
 
     yaml_parser_set_input_file(&parser, file);
 
-    std::string key;
+    std::string key1, key2;
     bool readingKey = true;
 
-    while (true) {
+        while (true) {
       if (!yaml_parser_parse(&parser, &event)) {
         std::cerr << "Parser error " << parser.error << std::endl;
         break;
@@ -95,10 +99,12 @@ private:
       if (event.type == YAML_SCALAR_EVENT) {
         std::string value(reinterpret_cast<const char*>(event.data.scalar.value));
         if (readingKey) {
-          key = value;
+          key1 = value;
           readingKey = false;
         } else {
-          (*result)[key] = value;
+          key2 = className + "." + key1;
+          (*config)[key2] = value;
+
           readingKey = true;
         }
       }
