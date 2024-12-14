@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <memory>
 
 typedef std::pair<std::string, std::string> ClassConfigFile;
 typedef std::vector<ClassConfigFile> ClassConfigFiles;
@@ -20,6 +21,10 @@ typedef std::unique_ptr<Config> ConfigPtr;
 
 class ParamReader {
 public:
+  static ParamReader& getInstance() {
+    static ParamReader instance;
+    return instance;
+  }
 
   void addConfigFiles(const ClassConfigFiles& configFilePath) {
     for (const auto& classConfig : configFilePath) {
@@ -31,42 +36,30 @@ public:
     }
   }
 
-  static ParamReader& getInstance() {
-    static ParamReader* instance = NULL;
-
-    if (instance == NULL) {
-      instance = new ParamReader();
-    }
-    return *instance;
-  }
-
   template<typename T>
-  T getParam(const char* className,  //const std::string& className,
-             const char* paramName,  //const std::string& paramName,
-             const T& defaultValue) const {
-
+  T getParam(const char* className, const char* paramName, const T& defaultValue) const {
     std::string key(className);
     key += ".";
     key += paramName;
 
-    std::string v = (*config)[key];
-    if (v.length() > 0) {
-      return convert<T>(v);
+    auto it = config.find(key);
+    if (it != config.end()) {
+      return convert<T>(it->second);
     } else {
       std::cerr << "Key " << key << " not found in config!" << std::endl;
+      return defaultValue;
     }
-    return defaultValue;
   }
 
 private:
-  ConfigPtr config;
-    
-  ParamReader() : config(std::make_unique<Config>()) {}
-    ~ParamReader() = default;
+  Config config;
+
+  ParamReader() {}
+  ~ParamReader() = default;
   ParamReader(const ParamReader&) = delete;
   ParamReader& operator=(const ParamReader&) = delete;
 
-  bool loadYamlFile(const std::string& filePath, const std::string& className) const {
+  bool loadYamlFile(const std::string& filePath, const std::string& className) {
     FILE* file = fopen(filePath.c_str(), "r");
     if (!file) {
       std::cerr << "Failed to open file: " << filePath << std::endl;
@@ -100,8 +93,7 @@ private:
           readingKey = false;
         } else {
           key2 = className + "." + key1;
-          (*config)[key2] = value;
-
+          config[key2] = value;
           readingKey = true;
         }
       }
@@ -127,14 +119,13 @@ private:
     iss >> result;
     return result;
   }
+};
 
-  };
-
-  // Explicit specialization for std::string
-  template<>
-  inline std::string ParamReader::convert<std::string>(const std::string& value) const {
-    return value;
-  }
+// Explicit specialization for std::string
+template<>
+inline std::string ParamReader::convert<std::string>(const std::string& value) const {
+  return value;
+}
 
 } // namespace data_management
 
