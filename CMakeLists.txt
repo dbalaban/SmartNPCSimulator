@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.10)
 project(FantasySimultor)
 
 set(CMAKE_BUILD_TYPE Debug)
+set(ADDRESS_SANITIZER OFF)
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(BUILD_SHARED_LIBS OFF)
 
@@ -14,6 +15,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # add debug flags if build type is Debug
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -rdynamic")
+endif()
+
+if(ADDRESS_SANITIZER)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
+    set(CMAKE_LINKER_FLAGS "${CMAKE_LINKER_FLAGS} -fsanitize=address")
 endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)

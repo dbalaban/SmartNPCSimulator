@@ -15,9 +15,7 @@ typedef std::vector<ClassConfigFile> ClassConfigFiles;
 
 namespace data_management {
 
-typedef std::unordered_map<std::string, std::string> ClassConfig;
-typedef std::unique_ptr<ClassConfig> ClassConfigPtr;
-typedef std::map<std::string, std::string> Config;
+typedef std::unordered_map<std::string, std::string> Config;
 typedef std::unique_ptr<Config> ConfigPtr;
 
 class ParamReader {
@@ -27,7 +25,6 @@ public:
     for (const auto& classConfig : configFilePath) {
       const std::string& className = classConfig.first;
       const std::string& filePath = classConfig.second;
-      ClassConfigPtr classConfigPtr = std::make_unique<ClassConfig>();
       if (!loadYamlFile(filePath, className)) {
         std::cerr << "Failed to load config file " << filePath << std::endl;
       }
@@ -52,7 +49,7 @@ public:
     key += ".";
     key += paramName;
 
-        std::string v = (*config)[key];
+    std::string v = (*config)[key];
     if (v.length() > 0) {
       return convert<T>(v);
     } else {
@@ -90,7 +87,7 @@ private:
     std::string key1, key2;
     bool readingKey = true;
 
-        while (true) {
+    while (true) {
       if (!yaml_parser_parse(&parser, &event)) {
         std::cerr << "Parser error " << parser.error << std::endl;
         break;
