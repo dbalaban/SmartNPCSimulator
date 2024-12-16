@@ -32,6 +32,10 @@ int main(int argc, char** argv) {
     data_management::ParamReader& reader = data_management::ParamReader::getInstance();
     reader.addConfigFiles(configFiles);
 
+    // hack solution to prevent memory corruption in reader.config in GridWord,GridWorldView constructors
+    data_management::ParamReader::getInstance().getParam<float>("Data", "max_time", 0);
+    data_management::ParamReader::getInstance().getParam<size_t>("GridWorld", "width", 10);
+
     data_management::DataWriter& writer = data_management::DataWriter::getInstance();
     std::string data_file = reader.getParam<std::string>("Data", "filename", "trial.data");
     std::string write_dir = reader.getParam<std::string>("Data", "directory", "data/raw/");

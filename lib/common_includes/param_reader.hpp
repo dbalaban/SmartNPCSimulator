@@ -44,7 +44,8 @@ public:
 
     auto it = config.find(key);
     if (it != config.end()) {
-      return convert<T>(it->second);
+      const std::string& value = it->second;
+      return convert<T>(value);
     } else {
       std::cerr << "Key " << key << " not found in config!" << std::endl;
       return defaultValue;
