@@ -24,59 +24,89 @@ class DataReader:
     with open(self.filename, 'rb') as file:
       while True:
         try:
-          is_new_column = self.read_value(file, '?')
-          if is_new_column:
-            column_header = self.read_string(file)
-            column_id = self.read_value(file, 'I')
-            self.column_map[column_id] = column_header
-          else:
-            column_id = self.read_value(file, 'I')
-          
-          datatype = DataType(self.read_value(file, 'I'))
-          value = self.read_data(file, datatype)
-          
-          column_header = self.column_map[column_id]
-          self.data[column_header].append(value)
-          
-          if file.peek(1)[:1] == b'\n':
-            file.read(1)  # consume newline
+          line_size = self.read_value(file, 'I')
+          line_data = file.read(line_size)
+          if not line_data:
+            break
+          self.process_line(line_data)
         except EOFError:
           break
 
-  def read_value(self, file, fmt):
+  def process_line(self, line_data):
+    file = memoryview(line_data)
+    offset = 0
+    while offset < len(file):
+      is_new_column = self.read_value(file, '?', offset)
+      offset += struct.calcsize('?')
+      if is_new_column:
+        column_header = self.read_string(file, offset)
+        offset += struct.calcsize('I') + len(column_header)
+        column_id = self.read_value(file, 'I', offset)
+        offset += struct.calcsize('I')
+        self.column_map[column_id] = column_header
+      else:
+        column_id = self.read_value(file, 'I', offset)
+        offset += struct.calcsize('I')
+
+      datatype = DataType(self.read_value(file, 'I', offset))
+      offset += struct.calcsize('I')
+      value, value_size = self.read_data(file, datatype, offset)
+      offset += value_size
+
+      column_header = self.column_map[column_id]
+      self.data[column_header].append(value)
+
+  def read_value(self, file, fmt, offset=0):
     size = struct.calcsize(fmt)
-    data = file.read(size)
+    data = file[offset:offset + size]
     if not data:
       raise EOFError
     return struct.unpack(fmt, data)[0]
 
-  def read_string(self, file):
-    length = self.read_value(file, 'I')
-    data = file.read(length)
-    return data.decode('utf-8')
+  def read_string(self, file, offset):
+    length = self.read_value(file, 'I', offset)
+    offset += struct.calcsize('I')
+    data = file[offset:offset + length]
+    return data.tobytes().decode('utf-8')
 
-  def read_vector(self, file):
-    length = self.read_value(file, 'I')
+  def read_vector(self, file, offset):
+    length = self.read_value(file, 'I', offset)
+    offset += struct.calcsize('I')
     if length == 0:
-      return []
-    datatype = DataType(self.read_value(file, 'I'))
-    return [self.read_data(file, datatype) for _ in range(length)]
+      return [], struct.calcsize('I')
+    datatype = DataType(self.read_value(file, 'I', offset))
+    offset += struct.calcsize('I')
+    vector = []
+    total_size = struct.calcsize('I') * 2
+    for _ in range(length):
+      value, value_size = self.read_data(file, datatype, offset)
+      vector.append(value)
+      offset += value_size
+      total_size += value_size
+    return vector, total_size
 
-  def read_data(self, file, datatype):
+  def read_data(self, file, datatype, offset):
     if datatype == DataType.BOOLEAN:
-      return self.read_value(file, '?')
+      value = self.read_value(file, '?', offset)
+      return value, struct.calcsize('?')
     elif datatype == DataType.INT:
-      return self.read_value(file, 'i')
+      value = self.read_value(file, 'i', offset)
+      return value, struct.calcsize('i')
     elif datatype == DataType.UINT:
-      return self.read_value(file, 'I')
+      value = self.read_value(file, 'I', offset)
+      return value, struct.calcsize('I')
     elif datatype == DataType.SIZE:
-      return self.read_value(file, 'Q')
+      value = self.read_value(file, 'Q', offset)
+      return value, struct.calcsize('Q')
     elif datatype == DataType.DOUBLE:
-      return self.read_value(file, 'd')
+      value = self.read_value(file, 'd', offset)
+      return value, struct.calcsize('d')
     elif datatype == DataType.STRING:
-      return self.read_string(file)
+      value = self.read_string(file, offset)
+      return value, struct.calcsize('I') + len(value)
     elif datatype == DataType.VECTOR:
-      return self.read_vector(file)
+      value, size = self.read_vector(file, offset)
+      return value, size
     else:
       raise ValueError(f"Unsupported data type: {datatype}")
 
@@ -89,7 +119,7 @@ def rePickle(reader, filename):
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("filename", help="Datafile to read")
-  parser.add_argument("output", help="(Optional) Re-Pickled data file", default="")
+  parser.add_argument("output", help="(Optional) Re-Pickled data file", nargs='?', default="")
   args = parser.parse_args()
   reader = DataReader(args.filename)
   if args.output:
