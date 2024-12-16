@@ -34,8 +34,10 @@ void Character::update(double elapsedTime) {
 
   std::string name = "Character " + std::to_string(getInstanceID());
   data_management::DataWriter& writer = data_management::DataWriter::getInstance();
-  writer.writeData<double>(name + " Health", data_management::DataType::DOUBLE, traits.health);
-  writer.writeData<double>(name + " Kcal", data_management::DataType::DOUBLE, traits.kcal_on_hand);
+  std::string hLab = name + " Health";
+  std::string kLab = name + " Kcal";
+  writer.writeData<double>(hLab.c_str(), data_management::DataType::DOUBLE, traits.health);
+  writer.writeData<double>(kLab.c_str(), data_management::DataType::DOUBLE, traits.kcal_on_hand);
 
   actor->update(reward);
   reward = 0;
@@ -56,7 +58,9 @@ std::unique_ptr<double[]> Character::getFeatures() const {
 
 void Character::burnKcal(double kcal) {
   data_management::DataWriter& writer = data_management::DataWriter::getInstance();
-  writer.writeData<double>("Kcal Burned", data_management::DataType::DOUBLE, kcal);
+  std::string name = "Character " + std::to_string(getInstanceID());
+  std::string lab = name + " Kcal Burned";
+  writer.writeData(lab.c_str(), data_management::DataType::DOUBLE, kcal);
   if (traits.kcal_on_hand > kcal) {
     traits.kcal_on_hand -= kcal;
   } else {

@@ -55,7 +55,7 @@ public:
   }
 
   void openFile(const std::string& filename) {
-    std::lock_guard<std::mutex> lock(mutex);
+    std::lock_guard<std::recursive_mutex> lock(mutex);
     if (file.is_open()) {
       std::cerr << "File already open, closing before opening new file" << std::endl;
       closeFile();
@@ -85,7 +85,7 @@ public:
   }
 
   void closeFile() {
-    std::lock_guard<std::mutex> lock(mutex);
+    std::lock_guard<std::recursive_mutex> lock(mutex);
     if (file.is_open()) {
       endLine();
       file.close();
@@ -97,24 +97,26 @@ public:
   }
 
   template<typename T>
-  void writeData(const std::string& label, const DataType datatype, const T& value) {
-    std::lock_guard<std::mutex> lock(mutex);
+  void writeData(const char* label, const DataType datatype, const T& value) {
+    std::string strLabel(label);
+    std::lock_guard<std::recursive_mutex> lock(mutex);
     if (!tmpFile.is_open()) {
-      std::cerr << "No temporary file open, skipping write of column: " << label << std::endl;
+      std::cerr << "No temporary file open, skipping write of column: " << strLabel << std::endl;
       return;
     }
     if (!verifyTypeMatch(datatype, value)) {
-      std::cerr << "Data type does not match value type, skipping write of column: " << label << std::endl;
+      std::cerr << "Data type does not match value type, skipping write of column: " << strLabel << std::endl;
       return;
     }
-    if (columnMap.find(label) == columnMap.end()) {
-      columnMap[label] = nextColumnID++;
+    if (columnMap.find(strLabel) == columnMap.end()) {
+      columnMap[strLabel] = nextColumnID;
+      nextColumnID++;
       writeValue(tmpFile, true); // Column header not seen before
-      writeString(tmpFile, label);
+      writeString(tmpFile, strLabel);
     } else {
       writeValue(tmpFile, false); // Column header seen before
     }
-    writeValue(tmpFile, columnMap[label]);
+    writeValue(tmpFile, columnMap[strLabel]);
     writeValue(tmpFile, static_cast<unsigned int>(datatype));
     if constexpr (std::is_same_v<T, std::string>) {
       writeString(tmpFile, value);
@@ -126,7 +128,7 @@ public:
   }
 
   void endLine() {
-    std::lock_guard<std::mutex> lock(mutex);
+    std::lock_guard<std::recursive_mutex> lock(mutex);
     if (!tmpFile.is_open()) {
       return;
     }
@@ -259,9 +261,9 @@ private:
   std::ofstream file;
   std::ofstream tmpFile;
   std::string tmpFilename;
-  std::unordered_map<std::string, int> columnMap;
-  int nextColumnID;
-  mutable std::mutex mutex;
+  std::unordered_map<std::string, uint32_t> columnMap;
+  uint32_t nextColumnID;
+  mutable std::recursive_mutex mutex;
 };
 
 } // namespace data_management

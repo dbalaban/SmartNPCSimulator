@@ -5,9 +5,7 @@
 
 GridWorldController::GridWorldController(GridWorldView& view, double frameTime) :
     view(view),
-    frameTime(frameTime) {
-  data_management::DataWriter::getInstance().writeData("Time Elapsed", data_management::DataType::DOUBLE, 0.0);
-}
+    frameTime(frameTime) {}
 
 void GridWorldController::handleInput(sf::RenderWindow& window) {
     sf::Event event;
@@ -21,10 +19,11 @@ void GridWorldController::update() {
     float frameDuration = 1.0f / frameRate;
     if (clock.getElapsedTime().asSeconds() >= frameDuration) {
         GridWorld& model = GridWorld::getInstance();
+        data_management::DataWriter& writer = data_management::DataWriter::getInstance();
         model.update(frameTime);
         timeAccumulator += frameTime;
-        data_management::DataWriter::getInstance().endLine();
-        data_management::DataWriter::getInstance().writeData("Time Elapsed", data_management::DataType::DOUBLE, timeAccumulator);
+        writer.endLine();
+        writer.writeData("Time Elapsed", data_management::DataType::DOUBLE, timeAccumulator);
         view.setTimeElapsed(timeAccumulator);
         clock.restart();
     }

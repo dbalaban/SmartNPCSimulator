@@ -41,6 +41,7 @@ int main(int argc, char** argv) {
     std::string write_dir = reader.getParam<std::string>("Data", "directory", "data/raw/");
     std::string write_path = write_dir + data_file;
     writer.openFile(write_path);
+    writer.writeData("Time Elapsed", data_management::DataType::DOUBLE, 0.0);
 
     ResourceManager grain{Resources{200}, Resources{10}, Resources{200}};
 
@@ -54,10 +55,10 @@ int main(int argc, char** argv) {
     gridWorld.GenerateTileMap();
 
     // random action policy
-    // auto actor = std::make_unique<RandomActor>(randomSeed);
+    auto actor = std::make_unique<RandomActor>();
 
     // smart action policy
-    auto actor = std::make_unique<rl::SmartActor>();
+    // auto actor = std::make_unique<rl::SmartActor>();
 
     // Add a character with action policy
     CharacterTraits traits(48000, 100, 48000, 0, 1600/24);
