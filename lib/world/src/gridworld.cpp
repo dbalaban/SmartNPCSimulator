@@ -7,7 +7,7 @@ GridWorld::GridWorld()
     : Element<GridWorld>(), 
     width(data_management::ParamReader::getInstance().getParam<size_t>("GridWorld", "width", 10)),
     height(data_management::ParamReader::getInstance().getParam<size_t>("GridWorld", "height", 10)),
-    randomSeed(data_management::ParamReader::getInstance().getParam<size_t>("GridWorld", "randomSeed", 42)),
+    randomSeed(data_management::ParamReader::getInstance().getParam<size_t>("GridWorld", "randomSeed", 0)),
     tileCount(0) {
   tiles.resize(width);
   for (size_t i = 0; i < width; i++) {

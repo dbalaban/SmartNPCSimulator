@@ -9,6 +9,8 @@
 #include "abstract_action.hpp"
 #include "tile.hpp"
 
+#include "param_reader.hpp"
+
 class AbstractActor {
 public:
   virtual ActionDesc selectAction(const std::vector<ActionDesc>& actions) = 0;
@@ -19,7 +21,7 @@ typedef std::unique_ptr<AbstractActor> ActorPtr;
 
 class RandomActor : public AbstractActor {
 public:
-  RandomActor(size_t randomSeed) : randomEngine(randomSeed) {}
+  RandomActor() : randomEngine(data_management::ParamReader::getInstance().getParam<size_t>("GridWorld", "randomSeed", 0)) {}
 
   ~RandomActor() {}
 
