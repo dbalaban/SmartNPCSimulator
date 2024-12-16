@@ -7,6 +7,7 @@
 #include <vector>
 #include <iostream>
 #include <type_traits>
+#include <mutex>
 
 // data format:
 // <isNewColumn - boolean>, <(if isNewColumn) new column header - string>, <columnID - UInt>, <dataType - UInt>, <data value - dataType>
@@ -27,8 +28,6 @@ enum class DataType {
   STRING,
   VECTOR
 };
-
-
 
 template <typename T>
 struct is_vector : std::false_type {};
@@ -53,6 +52,7 @@ public:
   }
 
   void openFile(const std::string& filename) {
+    std::lock_guard<std::mutex> lock(mutex);
     if (file.is_open()) {
       file.close();
     }
@@ -63,6 +63,7 @@ public:
   }
 
   void closeFile() {
+    std::lock_guard<std::mutex> lock(mutex);
     if (file.is_open()) {
       file.close();
     }
@@ -70,6 +71,7 @@ public:
 
   template<typename T>
   void writeData(const std::string& label, const DataType datatype, const T& value) {
+    std::lock_guard<std::mutex> lock(mutex);
     // if no file is open, print error and return
     if (!file.is_open()) {
       std::cerr << "No file open, skipping write of column: " << label << std::endl;
@@ -98,6 +100,7 @@ public:
   }
 
   void endLine() {
+    std::lock_guard<std::mutex> lock(mutex);
     file.put('\n');
   }
 
@@ -113,7 +116,7 @@ private:
   DataWriter& operator=(const DataWriter&) = delete;
 
   template<typename T>
-  bool verifyTypeMatch(const DataType datatype, const T& value) {
+  bool verifyTypeMatch(const DataType datatype, const T& value) const {
     switch (datatype) {
       case DataType::BOOLEAN:
         return std::is_same<T, bool>::value;
@@ -135,7 +138,7 @@ private:
   }
 
   template<typename T>
-  bool getType(T& value, DataType& datatype) {
+  bool getType(const T& value, DataType& datatype) const {
     if (std::is_same<T, bool>::value) {
       datatype = DataType::BOOLEAN;
     } else if (std::is_same<T, int>::value) {
@@ -157,7 +160,7 @@ private:
   }
 
   template <typename T>
-  void writeValue(T value) {
+  void writeValue(const T& value) {
     file.write(reinterpret_cast<const char*>(&value), sizeof(value));
   }
 
@@ -198,6 +201,7 @@ private:
   std::ofstream file;
   std::unordered_map<std::string, int> columnMap;
   int nextColumnID;
+  mutable std::mutex mutex;
 };
 
 } // namespace data_management
