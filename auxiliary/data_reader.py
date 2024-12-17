@@ -19,9 +19,11 @@ class DataReader:
     self.filename = filename
     self.data = defaultdict(list)
     self.column_map = {}
+    self.column_appearances = {}
     self.read_file()
 
   def read_file(self):
+    line_number = 0
     with open(self.filename, 'rb') as file:
       while True:
         try:
@@ -31,12 +33,14 @@ class DataReader:
           line_data = memoryview(file.read(line_size))
           if not line_data:
             break
-          self.process_line(line_data)
+          line_number += 1
+          self.process_line(line_data, line_number)
         except EOFError:
           break
 
-  def process_line(self, line_data : memoryview):
+  def process_line(self, line_data : memoryview, line_number : int):
     offset = 0
+    seen_columns = []
     while offset < len(line_data):
       is_new_column = self.read_value(line_data, '?', offset)
       offset += struct.calcsize('?')
@@ -46,17 +50,25 @@ class DataReader:
         column_id = self.read_value(line_data, 'I', offset)
         offset += struct.calcsize('I')
         self.column_map[column_id] = column_header
+        # track the first appearance line number for each column
+        self.column_appearances[column_id] = line_number
       else:
         column_id = self.read_value(line_data, 'I', offset)
         column_header = self.column_map[column_id]
         offset += struct.calcsize('I')
+      seen_columns.append(column_id)
 
       datatype = DataType(self.read_value(line_data, 'I', offset))
       offset += struct.calcsize('I')
       value, value_size = self.read_data(line_data, datatype, offset)
       offset += value_size
 
-      self.data[column_header].append(value)
+      self.data[column_id].append(value)
+
+    # for columns that are not present in the current line, add None
+    for column_id in self.column_map.keys():
+      if column_id not in seen_columns:
+        self.data[column_id].append(None)
 
   def read_value_from_file(self, file : BufferedReader, fmt : str):
     size = struct.calcsize(fmt)
@@ -120,7 +132,10 @@ class DataReader:
 def rePickle(reader, filename):
   reader.read_file()
   with open(filename, 'wb') as file:
-    pickle.dump(reader.data, file)
+    data = reader.data
+    colmap = reader.column_map
+    colapp = reader.column_appearances
+    pickle.dump((colmap,colapp,data), file)
 
 # Example usage
 if __name__ == "__main__":
