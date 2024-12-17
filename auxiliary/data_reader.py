@@ -2,6 +2,7 @@ import struct
 import pickle
 import argparse
 from collections import defaultdict
+from io import BufferedReader
 from enum import Enum
 
 class DataType(Enum):
@@ -14,7 +15,7 @@ class DataType(Enum):
   VECTOR = 6
 
 class DataReader:
-  def __init__(self, filename):
+  def __init__(self, filename: str):
     self.filename = filename
     self.data = defaultdict(list)
     self.column_map = {}
@@ -24,88 +25,94 @@ class DataReader:
     with open(self.filename, 'rb') as file:
       while True:
         try:
-          line_size = self.read_value(file, 'I')
-          line_data = file.read(line_size)
+          # Read the size of the next line
+          line_size = self.read_value_from_file(file, 'I')
+          # Read the line data into a memoryview
+          line_data = memoryview(file.read(line_size))
           if not line_data:
             break
           self.process_line(line_data)
         except EOFError:
           break
 
-  def process_line(self, line_data):
-    file = memoryview(line_data)
+  def process_line(self, line_data : memoryview):
     offset = 0
-    while offset < len(file):
-      is_new_column = self.read_value(file, '?', offset)
+    while offset < len(line_data):
+      is_new_column = self.read_value(line_data, '?', offset)
       offset += struct.calcsize('?')
       if is_new_column:
-        column_header = self.read_string(file, offset)
-        offset += struct.calcsize('I') + len(column_header)
-        column_id = self.read_value(file, 'I', offset)
+        column_header = self.read_string(line_data, offset)
+        offset += struct.calcsize('Q') + len(column_header)
+        column_id = self.read_value(line_data, 'I', offset)
         offset += struct.calcsize('I')
         self.column_map[column_id] = column_header
       else:
-        column_id = self.read_value(file, 'I', offset)
+        column_id = self.read_value(line_data, 'I', offset)
+        column_header = self.column_map[column_id]
         offset += struct.calcsize('I')
 
-      datatype = DataType(self.read_value(file, 'I', offset))
+      datatype = DataType(self.read_value(line_data, 'I', offset))
       offset += struct.calcsize('I')
-      value, value_size = self.read_data(file, datatype, offset)
+      value, value_size = self.read_data(line_data, datatype, offset)
       offset += value_size
 
-      column_header = self.column_map[column_id]
       self.data[column_header].append(value)
 
-  def read_value(self, file, fmt, offset=0):
+  def read_value_from_file(self, file : BufferedReader, fmt : str):
     size = struct.calcsize(fmt)
-    data = file[offset:offset + size]
+    data = file.read(size)
     if not data:
       raise EOFError
     return struct.unpack(fmt, data)[0]
 
-  def read_string(self, file, offset):
-    length = self.read_value(file, 'I', offset)
-    offset += struct.calcsize('I')
-    data = file[offset:offset + length]
+  def read_value(self, memview : memoryview, fmt : str, offset : int=0):
+    size = struct.calcsize(fmt)
+    data = memview[offset:offset + size]
+    if not data:
+      raise EOFError
+    return struct.unpack(fmt, data)[0]
+
+  def read_string(self, memview : memoryview, offset : int):
+    length = self.read_value(memview, 'Q', offset)
+    offset += struct.calcsize('Q')
+    data = memview[offset:offset + length]
     return data.tobytes().decode('utf-8')
 
-  def read_vector(self, file, offset):
-    length = self.read_value(file, 'I', offset)
-    offset += struct.calcsize('I')
+  def read_vector(self, memview : memoryview, offset : int):
+    length = self.read_value(memview, 'Q', offset)
+    total_size = struct.calcsize('Q')
     if length == 0:
-      return [], struct.calcsize('I')
-    datatype = DataType(self.read_value(file, 'I', offset))
-    offset += struct.calcsize('I')
+      return [], struct.calcsize('Q')
+    datatype = DataType(self.read_value(memview, 'I', offset+total_size))
+    total_size += struct.calcsize('I')
     vector = []
-    total_size = struct.calcsize('I') * 2
     for _ in range(length):
-      value, value_size = self.read_data(file, datatype, offset)
+      value, value_size = self.read_data(memview, datatype, offset+total_size)
       vector.append(value)
-      offset += value_size
       total_size += value_size
     return vector, total_size
 
-  def read_data(self, file, datatype, offset):
+  def read_data(self, memview : memoryview, datatype : DataType, offset : int):
     if datatype == DataType.BOOLEAN:
-      value = self.read_value(file, '?', offset)
+      value = self.read_value(memview, '?', offset)
       return value, struct.calcsize('?')
     elif datatype == DataType.INT:
-      value = self.read_value(file, 'i', offset)
+      value = self.read_value(memview, 'i', offset)
       return value, struct.calcsize('i')
     elif datatype == DataType.UINT:
-      value = self.read_value(file, 'I', offset)
+      value = self.read_value(memview, 'I', offset)
       return value, struct.calcsize('I')
     elif datatype == DataType.SIZE:
-      value = self.read_value(file, 'Q', offset)
+      value = self.read_value(memview, 'Q', offset)
       return value, struct.calcsize('Q')
     elif datatype == DataType.DOUBLE:
-      value = self.read_value(file, 'd', offset)
+      value = self.read_value(memview, 'd', offset)
       return value, struct.calcsize('d')
     elif datatype == DataType.STRING:
-      value = self.read_string(file, offset)
+      value = self.read_string(memview, offset)
       return value, struct.calcsize('I') + len(value)
     elif datatype == DataType.VECTOR:
-      value, size = self.read_vector(file, offset)
+      value, size = self.read_vector(memview, offset)
       return value, size
     else:
       raise ValueError(f"Unsupported data type: {datatype}")
@@ -118,8 +125,8 @@ def rePickle(reader, filename):
 # Example usage
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
-  parser.add_argument("filename", help="Datafile to read")
-  parser.add_argument("output", help="(Optional) Re-Pickled data file", nargs='?', default="")
+  parser.add_argument("--filename", required=True, help="Datafile to read")
+  parser.add_argument("--output", help="(Optional) Re-Pickled data file", default="")
   args = parser.parse_args()
   reader = DataReader(args.filename)
   if args.output:
