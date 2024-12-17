@@ -40,7 +40,7 @@ class DataReader:
 
   def process_line(self, line_data : memoryview, line_number : int):
     offset = 0
-    seen_columns = []
+    seen_columns = set()
     while offset < len(line_data):
       is_new_column = self.read_value(line_data, '?', offset)
       offset += struct.calcsize('?')
@@ -56,14 +56,18 @@ class DataReader:
         column_id = self.read_value(line_data, 'I', offset)
         column_header = self.column_map[column_id]
         offset += struct.calcsize('I')
-      seen_columns.append(column_id)
 
       datatype = DataType(self.read_value(line_data, 'I', offset))
       offset += struct.calcsize('I')
       value, value_size = self.read_data(line_data, datatype, offset)
       offset += value_size
 
-      self.data[column_id].append(value)
+      if column_id not in seen_columns:
+        seen_columns.add(column_id)
+        self.data[column_id].append(value)
+      else:
+        # repeated entries are converted to tuples
+        self.data[column_id][-1] = (self.data[column_id][-1], value)
 
     # for columns that are not present in the current line, add None
     for column_id in self.column_map.keys():

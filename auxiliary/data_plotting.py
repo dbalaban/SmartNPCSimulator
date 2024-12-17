@@ -26,14 +26,31 @@ def save_plot(x, y, label, output_dir):
   plt.savefig(os.path.join(output_dir, f'{label}_trendline.png'))
   plt.close()
 
+# return None if not found
+def inverse_dict(d, value):
+  for k, v in d.items():
+    if v == value:
+      return k
+  return None
+
 # given a .pkl data file and pyplot, add the health data with a given label
 def plot_health(ax, fpkl, label):
   (colmap,colapp,data) = load_data(fpkl)
-  x = data[0]
-  y = data[2]
+  # find the index for "Time Elapsed" column header
+  timeIdx = inverse_dict(colmap, "Time Elapsed")
+  assert not timeIdx is None
+  # find the index for "Character 0 Health" column header
+  healthIdx = inverse_dict(colmap, "Character 0 Health")
+  assert not healthIdx is None 
+
+  x_start = colapp[timeIdx]
+  y_start = colapp[healthIdx]
+  assert y_start >= x_start
+  x = data[timeIdx][y_start-x_start:]
+  y = data[healthIdx]
   ax.scatter(x, y, label=label)
 
-if __name__ == "__main__":
+def main():
   # create figure
   fig, ax = plt.subplots()
 
@@ -41,7 +58,11 @@ if __name__ == "__main__":
   ax.set_ylabel('Health (HP)')
 
   plot_health(ax, "data/pickled/trial_random.pkl", 'Random Actor')
+  plot_health(ax, "data/pickled/trial_0001.pkl", 'AI Actor')
 
   ax.legend()
   # save the plot
   plt.savefig("data/plots/health_plot.png")
+
+if __name__ == "__main__":
+  main()

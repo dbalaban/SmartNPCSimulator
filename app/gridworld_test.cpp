@@ -35,6 +35,7 @@ int main(int argc, char** argv) {
     // hack solution to prevent memory corruption in reader.config in GridWord,GridWorldView constructors
     data_management::ParamReader::getInstance().getParam<float>("Data", "max_time", 0);
     data_management::ParamReader::getInstance().getParam<size_t>("GridWorld", "width", 10);
+    std::string actorType = reader.getParam<std::string>("Data", "actor_type", "random");
 
     data_management::DataWriter& writer = data_management::DataWriter::getInstance();
     std::string data_file = reader.getParam<std::string>("Data", "filename", "trial.data");
@@ -54,11 +55,14 @@ int main(int argc, char** argv) {
     gridWorld.addTilePrototypes(tile_prototypes, weights);
     gridWorld.GenerateTileMap();
 
-    // random action policy
-    auto actor = std::make_unique<RandomActor>();
-
-    // smart action policy
-    // auto actor = std::make_unique<rl::SmartActor>();
+    ActorPtr actor;    
+    if (actorType == "random") {
+        // random action policy
+        actor = std::make_unique<RandomActor>();
+    } else {
+        // smart action policy
+        actor = std::make_unique<rl::SmartActor>();
+    }
 
     // Add a character with action policy
     CharacterTraits traits(48000, 100, 48000, 0, 1600/24);

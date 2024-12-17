@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # delete old data files for debugging
-rm -f data/raw/*
+# rm -f data/raw/*
 
 # Define the executable and its arguments
 EXECUTABLE="./bin/GridWorldApp"
