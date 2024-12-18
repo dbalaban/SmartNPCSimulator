@@ -8,6 +8,7 @@
 #include "tile.hpp"
 #include "param_reader.hpp"
 #include "data_writer.hpp"
+#include "crafted_actor.hpp"
 
 int main(int argc, char** argv) {
     // takes list of config files as arguments
@@ -59,6 +60,9 @@ int main(int argc, char** argv) {
     if (actorType == "random") {
         // random action policy
         actor = std::make_unique<RandomActor>();
+    } else if (actorType == "crafted") {
+        // crafted action policy
+        actor = std::make_unique<CraftedActor>(0);
     } else {
         // smart action policy
         actor = std::make_unique<rl::SmartActor>();

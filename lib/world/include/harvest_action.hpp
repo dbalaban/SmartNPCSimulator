@@ -27,9 +27,9 @@ private:
   static bool registered;
 };
 
-const size_t HarvestAction::ActionID = 2;
+inline const size_t HarvestAction::ActionID = 2;
 
-bool HarvestAction::registered = []() {
+inline bool HarvestAction::registered = []() {
   HarvestAction::registerAction(HarvestAction::ActionID, HarvestAction::execute);
   return true;
 }();

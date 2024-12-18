@@ -38,9 +38,9 @@ private:
   static bool registered;
 };
 
-const size_t MoveAction::ActionID = 1;
+inline const size_t MoveAction::ActionID = 1;
 
-bool MoveAction::registered = []() {
+inline bool MoveAction::registered = []() {
   MoveAction::registerAction(MoveAction::ActionID, MoveAction::execute);
   return true;
 }();
