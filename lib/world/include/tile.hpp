@@ -61,6 +61,12 @@ struct ResourceManager {
   }
 };
 
+class Tile;
+
+typedef std::shared_ptr<Tile> TilePtr;
+typedef std::shared_ptr<const Tile> constTilePtr;
+typedef std::weak_ptr<Tile> wTilePtr;
+
 class Tile : public Element<Tile> {
   friend class Element<Tile>;
 public:
@@ -85,11 +91,11 @@ public:
     return features;
   }
 
-  void addAdjacentTile(Tile* tile) {
+  void addAdjacentTile(const TilePtr& tile) {
     adjacentTiles.push_back(tile);
   }
 
-  const std::vector<Tile*>& getAdjacentTiles() const {
+  const std::vector<TilePtr>& getAdjacentTiles() const {
     return adjacentTiles;
   }
 
@@ -104,7 +110,7 @@ public:
   void update(double elapsedTime) override;
 
 private:
-  std::vector<Tile*> adjacentTiles;
+  std::vector<TilePtr> adjacentTiles;
   ResourceManager resources;
 };
 

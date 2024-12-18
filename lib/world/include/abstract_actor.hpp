@@ -13,7 +13,7 @@
 
 class AbstractActor {
 public:
-  virtual ActionDesc selectAction(const std::vector<ActionDesc>& actions) = 0;
+  virtual size_t selectAction(const std::vector<ActionDesc>& actions) = 0;
   virtual void update(double reward) = 0;
 };
 
@@ -25,9 +25,9 @@ public:
 
   ~RandomActor() {}
 
-  ActionDesc selectAction(const std::vector<ActionDesc>& actions) override {
+  size_t selectAction(const std::vector<ActionDesc>& actions) override {
     std::uniform_int_distribution<size_t> distribution(0, actions.size() - 1);
-    return actions[distribution(randomEngine)];
+    return distribution(randomEngine);
   }
 
   void update(double reward) {}

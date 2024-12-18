@@ -5,6 +5,7 @@
 
 #include "abstract_actor.hpp"
 #include "element.hpp"
+#include "tile.hpp"
 
 struct CharacterTraits {
   double health;
@@ -49,12 +50,12 @@ public:
 
   void burnKcal(double kcal);
 
-  void setPosition(Tile* tile) {
+  void setPosition(const TilePtr tile) {
     position = tile;
   }
 
-  Tile* getPosition() {
-    return position;
+  TilePtr getPosition() {
+    return position.lock();
   }
 
   AbstractActor* getActor() {
@@ -72,7 +73,7 @@ public:
   void getAvailableActions(std::vector<ActionDesc>& actions);
 
 protected:
-  Tile* position;
+  wTilePtr position;
   ActorPtr actor;
   CharacterTraits traits;
   double reward;

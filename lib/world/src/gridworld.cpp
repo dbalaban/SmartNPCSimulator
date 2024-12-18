@@ -18,7 +18,7 @@ GridWorld::GridWorld()
 GridWorld::~GridWorld() {
   for (size_t i = 0; i < width; i++) {
     for (size_t j = 0; j < height; j++) {
-      delete tiles[i][j];
+      tiles[i][j].reset();
     }
   }
 }
@@ -41,7 +41,14 @@ void GridWorld::update(double elapsedTime) {
   for (auto& character : characters) {
     std::vector<ActionDesc> actions;
     character.second->getAvailableActions(actions);
-    ActionDesc action = character.second->getActor()->selectAction(actions);
+    size_t action_choice = character.second->getActor()->selectAction(actions);
+    if (action_choice >= actions.size()) {
+      std::cerr << "Invalid action choice: " << action_choice 
+                << " by character " << character.first
+                << " of " << actions.size() << " available actions, skipping character." << std::endl;
+      continue;
+    }
+    ActionDesc action = actions[action_choice];
     selectedActions.push_back(action);
   }
 
@@ -68,7 +75,7 @@ void GridWorld::update(double elapsedTime) {
 
     // if character's health is 0, remove character
     if (it->second->getTraits().health <= 0) {
-      Tile* tile = it->second->getPosition();
+      TilePtr tile = it->second->getPosition();
       tileCharacterMap[tile->getInstanceID()].erase(characterID);
       characterTileMap.erase(characterID);
       it = characters.erase(it); // Erase and update the iterator
@@ -84,11 +91,20 @@ void GridWorld::update(double elapsedTime) {
   }
 }
 
-Tile* GridWorld::getTile(Coord2D coord) const {
+TilePtr& GridWorld::getTile(Coord2D coord) {
   return tiles[coord.first][coord.second];
 }
 
-Tile* GridWorld::getTile(size_t tileID) const {
+TilePtr& GridWorld::getTile(size_t tileID) {
+  Coord2D coord = getTileCoord(tileID);
+  return tiles[coord.first][coord.second];
+}
+
+const TilePtr& GridWorld::getTile(Coord2D coord) const {
+  return tiles[coord.first][coord.second];
+}
+
+const TilePtr& GridWorld::getTile(size_t tileID) const {
   Coord2D coord = getTileCoord(tileID);
   return tiles[coord.first][coord.second];
 }
@@ -102,7 +118,7 @@ const int GridWorld::getHeight() const {
 }
 
 const size_t GridWorld::getTileID(Coord2D coord) const {
-  Tile* tile = tiles[coord.first][coord.second];
+  const TilePtr& tile = tiles[coord.first][coord.second];
   return tile->getInstanceID();
 }
 
@@ -122,7 +138,7 @@ void GridWorld::GenerateTileMap() {
     for (size_t j = 0; j < height; j++) {
       size_t index = dist(gen);
       ResourceManager resources = tile_prototypes[index];
-      Tile* tile = new Tile(resources);
+      TilePtr tile(new Tile(resources));
       Coord2D coord = std::make_pair(i, j);
       tileCoordMap[tile->getInstanceID()] = coord;
       tiles[i][j] = tile;
@@ -133,7 +149,7 @@ void GridWorld::GenerateTileMap() {
   // establish adjacency
   for (size_t i = 0; i < width; i++) {
     for (size_t j = 0; j < height; j++) {
-      Tile* tile = tiles[i][j];
+      TilePtr& tile = tiles[i][j];
       if (i > 0) {
         tile->addAdjacentTile(tiles[i - 1][j]);
       } else {
@@ -159,7 +175,7 @@ void GridWorld::GenerateTileMap() {
 }
 
 void GridWorld::AddCharacter(CharacterPtr character, Coord2D coord) {
-  Tile* tile = getTile(coord);
+  TilePtr& tile = getTile(coord);
   character->setPosition(tile);
   size_t characterID = character->getInstanceID();
   characters[characterID] = std::move(character);
@@ -173,7 +189,7 @@ std::unique_ptr<double[]> GridWorld::getTileFeatures() const {
   std::unique_ptr<double[]> features(new double[tileCount * tile_feature_size]);
   for (size_t i = 0; i < tileCount; i++) {
     Coord2D coord = tileCoordMap.at(i);
-    Tile* tile = tiles[coord.first][coord.second];
+    const TilePtr& tile = tiles[coord.first][coord.second];
     std::unique_ptr<double[]> tile_features = tile->getFeatures();
     std::copy(tile_features.get(), tile_features.get() + tile_feature_size, features.get() + i * tile_feature_size);
   }

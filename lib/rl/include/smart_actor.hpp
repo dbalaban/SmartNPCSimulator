@@ -18,7 +18,7 @@ public:
 
   void update(double reward) override;
 
-  ActionDesc selectAction(const std::vector<ActionDesc>& actions) override;
+  size_t selectAction(const std::vector<ActionDesc>& actions) override;
 
 private:
   GridWorld& world; // Global reference object

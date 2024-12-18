@@ -40,9 +40,13 @@ public:
 
   std::unique_ptr<double[]> getCharacterFeatures() const;
 
-  Tile* getTile(Coord2D coord) const;
+  TilePtr& getTile(Coord2D coord);
 
-  Tile* getTile(size_t tileID) const;
+  TilePtr& getTile(size_t tileID);
+
+  const TilePtr& getTile(Coord2D coord) const;
+
+  const TilePtr& getTile(size_t tileID) const;
 
   const int getWidth() const;
 
@@ -76,6 +80,10 @@ public:
     return characters.at(characterID);
   }
 
+  const std::unordered_map<size_t, size_t>& getCharacterTileMap() const {
+    return characterTileMap;
+  }
+
 private:
   GridWorld();
   ~GridWorld();
@@ -86,7 +94,7 @@ private:
   const size_t width;
   const size_t height;
   // grid of tiles
-  std::vector<std::vector<Tile*>> tiles;
+  std::vector<std::vector<TilePtr>> tiles;
   // character ID to character pointer
   std::unordered_map<size_t, CharacterPtr> characters;
   // tile ID to tile coordinate

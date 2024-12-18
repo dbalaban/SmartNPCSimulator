@@ -23,7 +23,7 @@ SmartActor::SmartActor() :
     optimizer_actor(fomap.parameters(), torch::optim::AdamOptions(learning_rate_actor)),
     optimizer_critic(v.parameters(), torch::optim::RMSpropOptions(learning_rate_critic)) {}
 
-ActionDesc SmartActor::selectAction(const std::vector<ActionDesc>& actions) {
+size_t SmartActor::selectAction(const std::vector<ActionDesc>& actions) {
   // Get the current state
   std::unique_ptr<double[]> grid_state = world.getFeatures();
   std::unique_ptr<double[]> tile_state = world.getTileFeatures();
@@ -64,7 +64,7 @@ ActionDesc SmartActor::selectAction(const std::vector<ActionDesc>& actions) {
 
   last_action_prob = action_probs[action_index];
 
-  return actions[action_index];
+  return action_index;
 }
 
 void SmartActor::update(double reward) {

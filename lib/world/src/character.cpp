@@ -6,19 +6,24 @@
 
 void Character::getAvailableActions(std::vector<ActionDesc>& actions) {
   actions.clear();
-  Tile* tile = getPosition();
+  TilePtr tile = getPosition();
   // stay in place action, do nothing
-  ActionDesc stayInPlaceAction = {ElementID, getInstanceID(), MoveAction::ActionID, tile->getElementID(), tile->getInstanceID(), this, tile};
+  ActionDesc stayInPlaceAction = {ElementID, getInstanceID(), MoveAction::ActionID, tile->getElementID(), tile->getInstanceID(), this, tile.get()};
   actions.push_back(stayInPlaceAction);
 
   // move to adjacent tile actions
-  for (Tile* adjacentTile : tile->getAdjacentTiles()) {
-    ActionDesc moveAction = {ElementID, getInstanceID(), MoveAction::ActionID, adjacentTile->getElementID(), adjacentTile->getInstanceID(), this, adjacentTile};
+  for (TilePtr adjacentTile : tile->getAdjacentTiles()) {
+    ActionDesc moveAction = {ElementID,
+                            getInstanceID(),
+                            MoveAction::ActionID,
+                            adjacentTile->getElementID(),
+                            adjacentTile->getInstanceID(), this,
+                            dynamic_cast<ElementBase*>(adjacentTile.get())};
     actions.push_back(moveAction);
   }
 
   // harvest action
-  ActionDesc harvestAction = {ElementID, getInstanceID(), HarvestAction::ActionID, tile->getElementID(), tile->getInstanceID(), this, tile};
+  ActionDesc harvestAction = {ElementID, getInstanceID(), HarvestAction::ActionID, tile->getElementID(), tile->getInstanceID(), this, tile.get()};
   actions.push_back(harvestAction);
 }
 
@@ -52,7 +57,7 @@ std::unique_ptr<double[]> Character::getFeatures() const {
   features[4] = traits.max_health;
   features[5] = traits.kcal_on_hand;
   features[6] = traits.kcal_burn_rate;
-  features[7] = position->getInstanceID();
+  features[7] = position.lock()->getInstanceID();
   return features;
 }
 

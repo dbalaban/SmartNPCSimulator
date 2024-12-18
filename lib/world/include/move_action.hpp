@@ -4,6 +4,7 @@
 #include "abstract_action.hpp"
 #include "character.hpp"
 #include "tile.hpp"
+#include "gridworld.hpp"
 
 class MoveAction : public AbstractAction {
 public:
@@ -14,14 +15,20 @@ public:
     // require the subject to be a character
     Character* character = dynamic_cast<Character*>(subject);
     // require the object to be a tile
-    Tile* tile = dynamic_cast<Tile*>(object);
+    Tile* newTile = dynamic_cast<Tile*>(object);
 
-    if (character && tile) {
-      // move the character to the tile
-      character->setPosition(tile);
-      if (character->getPosition() != tile) {
+    if (character && newTile) {
+      TilePtr oldTile = character->getPosition();
+      GridWorld& world = GridWorld::getInstance();
+      size_t newTileID = newTile->getInstanceID();
+      size_t oldTileID = oldTile->getInstanceID();
+      if (newTileID != oldTileID) {
         double burnRate = character->getTraits().kcal_burn_rate;
         character->burnKcal(2*burnRate);
+      } else {
+        // move the character to the tile
+        TilePtr newTilePtr = world.getTile(newTileID);
+        character->setPosition(newTilePtr);
       }
     }
   }
