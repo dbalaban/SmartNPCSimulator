@@ -74,9 +74,9 @@ def run_trials(gen_configs):
     count += 1
     run_trial(config)
     # read the data from data/raw/trial_{count}.dat
-    data = dr.read_data(f"data/raw/trial_{count:04d}.dat")
+    reader = dr.DataReader(f"data/raw/trial_{count:04d}.dat")
     # save the data to data/pickled/trial_{count}.pkl
-    dr.save_data(data, f"data/pickled/trial_{count:04d}.pkl")
+    dr.save_data(reader, f"data/pickled/trial_{count:04d}.pkl")
 
 if __name__ == "__main__":
   generator = get_configs('SmartActor.yaml', 'learning_rate_actor', 1e-6, 1e6, 20, isLog=True)
