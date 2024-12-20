@@ -8,7 +8,7 @@ class GridWorldController {
 public:
     GridWorldController(GridWorldView& view, double frameTime = 1.0);
     void handleInput(sf::RenderWindow& window);
-    void update();
+    bool update();
 
 private:
     GridWorldView& view;

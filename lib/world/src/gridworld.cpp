@@ -51,7 +51,7 @@ void GridWorld::update(double elapsedTime) {
                 << " of " << actions.size() << " available actions, skipping character." << std::endl;
       continue;
     }
-    ActionDesc action = actions[action_choice];
+    ActionDesc& action = actions[action_choice];
     selectedActions.push_back(action);
   }
 

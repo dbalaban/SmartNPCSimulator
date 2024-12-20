@@ -15,7 +15,7 @@ void GridWorldController::handleInput(sf::RenderWindow& window) {
     }
 }
 
-void GridWorldController::update() {
+bool GridWorldController::update() {
     float frameDuration = 1.0f / frameRate;
     if (clock.getElapsedTime().asSeconds() >= frameDuration) {
         GridWorld& model = GridWorld::getInstance();
@@ -23,6 +23,9 @@ void GridWorldController::update() {
         model.update(frameTime);
         timeAccumulator += frameTime;
         writer.endLine();
+        if (!model.hasLivingCharacters()) {
+            return false;
+        }
         writer.writeData("Time Elapsed", data_management::DataType::DOUBLE, timeAccumulator);
         view.setTimeElapsed(timeAccumulator);
         clock.restart();

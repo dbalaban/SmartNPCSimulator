@@ -87,11 +87,14 @@ int main(int argc, char** argv) {
     // Main loop
     while (window.isOpen()) {
         controller.handleInput(window);
-        controller.update();
+        bool shouldContinue = controller.update();
 
         window.clear();
         view.draw(window);
         window.display();
+        if (!shouldContinue) {
+            window.close();
+        }
     }
 
     return 0;

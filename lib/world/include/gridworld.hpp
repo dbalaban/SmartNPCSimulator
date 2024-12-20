@@ -88,6 +88,15 @@ public:
     return characterTileMap;
   }
 
+  bool hasLivingCharacters() const {
+    for (const auto& character : characters) {
+      if (character.second->getTraits().health > 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
 private:
   GridWorld();
   ~GridWorld();

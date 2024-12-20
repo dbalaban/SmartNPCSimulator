@@ -24,10 +24,8 @@ public:
       size_t oldTileID = oldTile->getInstanceID();
       if (newTileID != oldTileID) {
         double burnRate = character->getTraits().kcal_burn_rate;
-        character->burnKcal(2*burnRate);
-      } else {
-        // move the character to the tile
         TilePtr newTilePtr = world.getTile(newTileID);
+        character->burnKcal(2*burnRate);
         character->setPosition(newTilePtr);
       }
     }
