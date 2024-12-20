@@ -46,7 +46,8 @@ def plot_health(ax, fpkl, label):
   x_start = colapp[timeIdx]
   y_start = colapp[healthIdx]
   assert y_start >= x_start
-  x = data[timeIdx][y_start-x_start:]
+  idx_start = y_start-x_start
+  x = data[timeIdx][idx_start:]
   y = data[healthIdx]
   ax.scatter(x, y, label=label)
 

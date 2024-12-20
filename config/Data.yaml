@@ -1,4 +1,4 @@
 max_time: 1000
-actor_type: "crafted"
+actor_type: "smart"
 filename: "trial_crafted.dat"
 directory: "data/raw/"

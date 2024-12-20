@@ -30,4 +30,5 @@ bool GridWorldController::update() {
         view.setTimeElapsed(timeAccumulator);
         clock.restart();
     }
+    return true;
 }
