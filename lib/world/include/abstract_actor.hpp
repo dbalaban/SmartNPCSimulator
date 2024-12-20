@@ -11,6 +11,10 @@
 
 #include "param_reader.hpp"
 
+class AbstractActor;
+
+typedef std::unique_ptr<AbstractActor> ActorPtr;
+
 class AbstractActor {
 public:
   virtual size_t selectAction(const std::vector<ActionDesc>& actions) = 0;

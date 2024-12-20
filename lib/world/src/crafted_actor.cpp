@@ -5,17 +5,18 @@
 
 CraftedActor::CraftedActor(size_t charID):
     characterID(charID),
-    world(GridWorld::getInstance()),
-    character(world.getCharacter(charID)) {}
+    world(GridWorld::getInstance()) {
+  character = world.getCharacter(characterID);
+}
 
 CraftedActor::~CraftedActor() {}
 
 size_t CraftedActor::selectAction(const std::vector<ActionDesc>& actions) {
   // Get the tile the character is on
-  TilePtr tile = character->getPosition();
+  constTilePtr tile = character.lock()->getPosition();
   const Resources& resources = tile->getResources();
   // if the current tile has less resources than the character's burn rate, move to a new tile
-  if (resources.kcal < character->getTraits().kcal_burn_rate) {
+  if (resources.kcal < character.lock()->getTraits().kcal_burn_rate) {
     const size_t moveActionID = MoveAction::ActionID;
     double max_kcal = 0;
     size_t max_kcal_action = 0;

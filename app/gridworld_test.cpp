@@ -56,23 +56,26 @@ int main(int argc, char** argv) {
     gridWorld.addTilePrototypes(tile_prototypes, weights);
     gridWorld.GenerateTileMap();
 
-    ActorPtr actor;    
+    // Add a character
+    CharacterTraits traits(48000, 100, 48000, 0, 1600/24);
+    CharacterPtr character = std::make_shared<Character>(traits);
+    size_t characterID = character->getInstanceID();
+    Coord2D coord = std::make_pair(5, 5);
+    gridWorld.AddCharacter(std::move(character), coord);
+
+    ActorPtr actor;
     if (actorType == "random") {
         // random action policy
         actor = std::make_unique<RandomActor>();
     } else if (actorType == "crafted") {
         // crafted action policy
-        actor = std::make_unique<CraftedActor>(0);
+        actor = std::make_unique<CraftedActor>(characterID);
     } else {
         // smart action policy
         actor = std::make_unique<rl::SmartActor>();
     }
 
-    // Add a character with action policy
-    CharacterTraits traits(48000, 100, 48000, 0, 1600/24);
-    auto character = std::make_unique<Character>(std::move(actor), traits);
-    Coord2D coord = std::make_pair(5, 5);
-    gridWorld.AddCharacter(std::move(character), coord);
+    gridWorld.getCharacter(characterID)->setActionPolicy(actor);
 
     // Create the view and controller
     GridWorldView view;

@@ -98,7 +98,7 @@ void GridWorldView::draw(sf::RenderWindow& window) {
         // Draw the character's health bar
         // get the kth character in the unordered set
         size_t characterID = *std::next(pair.second.begin(), k);
-        const CharacterPtr& character = model.getCharacter(characterID);
+        constCharacterPtr character = model.getCharacter(characterID);
         const CharacterTraits& traits = character->getTraits();
         float healthRatio = traits.health / traits.max_health;
 

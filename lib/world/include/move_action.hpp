@@ -18,7 +18,7 @@ public:
     Tile* newTile = dynamic_cast<Tile*>(object);
 
     if (character && newTile) {
-      TilePtr oldTile = character->getPosition();
+      constTilePtr oldTile = character->getPosition();
       GridWorld& world = GridWorld::getInstance();
       size_t newTileID = newTile->getInstanceID();
       size_t oldTileID = oldTile->getInstanceID();

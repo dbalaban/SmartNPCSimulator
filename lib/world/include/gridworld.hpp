@@ -76,7 +76,11 @@ public:
     return tileCharacterMap;
   }
 
-  const CharacterPtr& getCharacter(size_t characterID) const {
+  constCharacterPtr getCharacter(size_t characterID) const {
+    return characters.at(characterID);
+  }
+
+  CharacterPtr getCharacter(size_t characterID) {
     return characters.at(characterID);
   }
 

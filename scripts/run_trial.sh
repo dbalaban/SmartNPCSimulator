@@ -13,12 +13,7 @@ if [ "$1" == "valgrind" ]; then
     valgrind --tool=memcheck --track-origins=yes --log-file=valgrind_output.txt --read-var-info=yes --show-reachable=yes --undef-value-errors=yes $EXECUTABLE $ARGS
 elif [ "$1" == "gdb" ]; then
     # Run the application with GDB and set watchpoints
-    gdb -ex "break DataWriter::writeData" \
-        -ex "run $ARGS" \
-        -ex "set \$dataWriter = &DataWriter::getInstance()" \
-        -ex "set \$columnMapAddress = &\$dataWriter->columnMap" \
-        -ex "watch *\$columnMapAddress" \
-        -ex "continue" \
+    gdb -ex "run $ARGS" \
         --args $EXECUTABLE $ARGS
 else
     # Run the application normally

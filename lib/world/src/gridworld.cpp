@@ -39,6 +39,9 @@ void GridWorld::addTilePrototypes(std::vector<ResourceManagerRef>& tile_prototyp
 void GridWorld::update(double elapsedTime) {
   std::vector<ActionDesc> selectedActions;
   for (auto& character : characters) {
+    if (!character.second->isActionPolicySet()) {
+      continue;
+    }
     std::vector<ActionDesc> actions;
     character.second->getAvailableActions(actions);
     size_t action_choice = character.second->getActor()->selectAction(actions);
@@ -75,7 +78,7 @@ void GridWorld::update(double elapsedTime) {
 
     // if character's health is 0, remove character
     if (it->second->getTraits().health <= 0) {
-      TilePtr tile = it->second->getPosition();
+      constTilePtr tile = it->second->getPosition();
       tileCharacterMap[tile->getInstanceID()].erase(characterID);
       characterTileMap.erase(characterID);
       it = characters.erase(it); // Erase and update the iterator

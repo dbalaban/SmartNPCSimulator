@@ -4,9 +4,14 @@
 
 #include "data_writer.hpp"
 
+void Character::setActionPolicy(ActorPtr& actor_) {
+  actor = std::move(actor_);
+  isActionSet = true;
+}
+
 void Character::getAvailableActions(std::vector<ActionDesc>& actions) {
   actions.clear();
-  TilePtr tile = getPosition();
+  TilePtr tile = position.lock();
   // stay in place action, do nothing
   ActionDesc stayInPlaceAction = {ElementID, getInstanceID(), MoveAction::ActionID, tile->getElementID(), tile->getInstanceID(), this, tile.get()};
   actions.push_back(stayInPlaceAction);

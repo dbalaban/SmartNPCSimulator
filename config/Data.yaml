@@ -1,4 +1,4 @@
 max_time: 1000
-actor_type: "random"
-filename: "trial_0001.dat"
+actor_type: "crafted"
+filename: "trial_crafted.dat"
 directory: "data/raw/"

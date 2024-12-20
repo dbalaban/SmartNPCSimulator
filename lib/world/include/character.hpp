@@ -26,19 +26,26 @@ struct CharacterTraits {
         kcal_burn_rate(kcal_burn_rate) {}
 };
 
+class Character;
+
+typedef std::shared_ptr<Character> CharacterPtr;
+typedef std::shared_ptr<const Character> constCharacterPtr;
+typedef std::weak_ptr<const Character> wCharacterPtr;
+
 class Character : public Element<Character> {
 public:
   static const size_t ElementID = 4;
   static const size_t FeatureSize = 8;
 
-  Character(ActorPtr actor,
-            CharacterTraits traits) : 
-      Element<Character>(), 
-      actor(std::move(actor)),
+  Character(CharacterTraits traits) : 
+      Element<Character>(),
       traits(traits),
-      reward(0) {}
+      reward(0),
+      isActionSet(false) {}
 
   ~Character() = default;
+
+  void setActionPolicy(ActorPtr& actor_);
 
   void update(double elapsedTime) override;
 
@@ -54,12 +61,15 @@ public:
     position = tile;
   }
 
-  TilePtr getPosition() {
+  constTilePtr getPosition() const {
     return position.lock();
   }
 
-  AbstractActor* getActor() {
-    return actor.get();
+  ActorPtr& getActor() {
+    if (!isActionSet) {
+      std::cerr << "Warning: Actor not set for character " << getInstanceID() << std::endl;
+    }
+    return actor;
   }
 
   const CharacterTraits& getTraits() const {
@@ -72,13 +82,16 @@ public:
 
   void getAvailableActions(std::vector<ActionDesc>& actions);
 
+  bool isActionPolicySet() {
+    return isActionSet;
+  }
+
 protected:
   wTilePtr position;
   ActorPtr actor;
   CharacterTraits traits;
   double reward;
+  bool isActionSet;
 };
-
-typedef std::unique_ptr<Character> CharacterPtr;
 
 #endif // CHARACTER_HPP

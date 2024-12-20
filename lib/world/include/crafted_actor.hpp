@@ -16,7 +16,7 @@ public:
 private:
   const size_t characterID;
   const GridWorld& world;
-  const CharacterPtr& character;
+  wCharacterPtr character;
   RandomActor randomActor;
 };
 

@@ -107,6 +107,10 @@ public:
     return resources.resources;
   }
 
+  const Resources& getResources() const {
+    return resources.resources;
+  }
+
   void update(double elapsedTime) override;
 
 private:
