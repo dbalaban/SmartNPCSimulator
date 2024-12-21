@@ -1,3 +1,5 @@
 discounting_factor: 0.9
 learning_rate_actor: 160.0
 learning_rate_critic: 3.36e-4
+eligibility_decay_actor: 0.9
+eligibility_decay_critic: 0.9

@@ -19,9 +19,18 @@ SmartActor::SmartActor() :
     discounting_factor(data_management::ParamReader::getInstance().getParam<double>("SmartActor", "discounting_factor", 0.99)),
     learning_rate_actor(data_management::ParamReader::getInstance().getParam<double>("SmartActor", "learning_rate_actor", 0.01)),
     learning_rate_critic(data_management::ParamReader::getInstance().getParam<double>("SmartActor", "learning_rate_critic", 0.01)),
-    decay_factor(1.0),
+    elibility_decay_actor(data_management::ParamReader::getInstance().getParam<double>("SmartActor", "elibility_decay_actor", 0.99)),
+    elibility_decay_critic(data_management::ParamReader::getInstance().getParam<double>("SmartActor", "elibility_decay_critic", 0.99)),
     optimizer_actor(fomap.parameters(), torch::optim::AdamOptions(learning_rate_actor)),
-    optimizer_critic(v.parameters(), torch::optim::RMSpropOptions(learning_rate_critic)) {}
+    optimizer_critic(v.parameters(), torch::optim::RMSpropOptions(learning_rate_critic)) {
+  for (const auto& param : fomap.parameters()) {
+    actor_eligibility_trace.push_back(torch::zeros_like(param));
+  }
+
+  for (const auto& param : v.parameters()) {
+    critic_eligibility_trace.push_back(torch::zeros_like(param));
+  }
+}
 
 size_t SmartActor::selectAction(const std::vector<ActionDesc>& actions) {
   // Get the current state
@@ -96,14 +105,22 @@ void SmartActor::update(double reward) {
   // Update the value estimator
   v.zero_grad();
   v_loss.backward();
+
+  for (size_t i = 0; i < v.parameters().size(); i++) {
+    critic_eligibility_trace[i] = elibility_decay_critic * critic_eligibility_trace[i] + v.parameters()[i].grad();
+    v.parameters()[i].grad().copy_(critic_eligibility_trace[i]);
+  }
   optimizer_critic.step();
 
   // Update the FOMAP
   auto advantage = td_error.detach();
-  auto action_loss = -torch::log(last_action_prob) * advantage * decay_factor;
+  auto action_loss = -torch::log(last_action_prob) * advantage;
   fomap.zero_grad();
   action_loss.backward();
+
+  for (size_t i = 0; i < fomap.parameters().size(); i++) {
+    actor_eligibility_trace[i] = elibility_decay_actor * actor_eligibility_trace[i] + fomap.parameters()[i].grad();
+    fomap.parameters()[i].grad().copy_(actor_eligibility_trace[i]);
+  }
   optimizer_actor.step();
-  decay_factor *= discounting_factor;
-  decay_factor = std::max(1e-5, decay_factor);
 }
