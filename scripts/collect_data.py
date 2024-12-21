@@ -57,13 +57,13 @@ def run_trial(configs):
     with open(f'config_trial/{filename}', 'w') as file:
       yaml.dump(config, file)
 
-  args = glob.glob('config_trial/*.yaml')
+  args_list = glob.glob('config_trial/*.yaml')
+  args = ''
+  for arg in args_list:
+    args += f"{arg} "
 
   # Run the GridWorldApp executable
   exe = "bin/GridWorldApp"
-  args = ""
-  for f in yaml_files:
-    args += f"{f} "
   exe_string = f"{exe} {args}"
   print(f"Running {exe_string}")
   subprocess.run(exe_string, shell=True)
@@ -76,7 +76,7 @@ def run_trials(gen_configs):
     # read the data from data/raw/trial_{count}.dat
     reader = dr.DataReader(f"data/raw/trial_{count:04d}.dat")
     # save the data to data/pickled/trial_{count}.pkl
-    dr.save_data(reader, f"data/pickled/trial_{count:04d}.pkl")
+    dr.rePickle(reader, f"data/pickled/trial_{count:04d}.pkl")
 
 if __name__ == "__main__":
   generator = get_configs('SmartActor.yaml', 'learning_rate_actor', 1e-6, 1e6, 20, isLog=True)
@@ -84,16 +84,6 @@ if __name__ == "__main__":
   os.makedirs('config_trial', exist_ok=True)
 
   run_trials(generator)
-
-  # Plot the health data
-  fig, ax = plt.subplots()
-  ax.set_xlabel('Time Elapsed (hr)')
-  ax.set_ylabel('Health (HP)')
-  dp.plot_health(ax, "data/pickled/trial_random.pkl", 'Random Actor')
-  dp.plot_health(ax, "data/pickled/trial_crafted.pkl", 'Hand Crafted Actor')
-  dp.plot_health(ax, "data/pickled/trial_0001.pkl", 'AI Actor')
-  ax.legend()
-  plt.savefig('data/plots/health.png')
 
   # Clean up the config_trial directory
   os.system("rm -rf config_trial")
