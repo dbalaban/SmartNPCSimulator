@@ -79,7 +79,7 @@ def run_trials(gen_configs):
     dr.rePickle(reader, f"data/pickled/trial_{count:04d}.pkl")
 
 if __name__ == "__main__":
-  generator = get_configs('SmartActor.yaml', 'learning_rate_actor', 1e-6, 1e6, 20, isLog=True)
+  generator = get_configs('SmartActor.yaml', 'learning_rate_critic', 1e-6, 1e6, 20, isLog=True)
 
   os.makedirs('config_trial', exist_ok=True)
 

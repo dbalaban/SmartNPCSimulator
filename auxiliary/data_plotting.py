@@ -171,7 +171,7 @@ def plot_baseline_health():
   plt.savefig("data/plots/health_plot.png")
 
 def main():
-  plot_health_params('learning_rate_actor', 1e-6, 1e6, isLog=True)
+  plot_health_params('learning_rate_critic', 1e-6, 1e6, isLog=True)
 
 if __name__ == "__main__":
   main()

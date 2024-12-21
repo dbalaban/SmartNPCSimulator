@@ -1,3 +1,3 @@
 discounting_factor: 0.9
 learning_rate_actor: 160.0
-learning_rate_critic: .01
+learning_rate_critic: 3.36e-4
